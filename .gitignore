@@ -2,9 +2,6 @@
 # eclipse stuff
 .metadata/
 RemoteSystemsTempFiles
-projectCode/.settings/
-projectCode/.classpath
-projectCode/.project
 
 # Compiled class file
 *.class

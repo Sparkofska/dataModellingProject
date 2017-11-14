@@ -1,48 +1,24 @@
 package md;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseCreator {
-
-	static final String DB_URL = "jdbc:mysql://localhost/";
-
-	private static final String DB_NAME = "testdb";
-
-	private static final String USER = "root";
-	private static final String PASS = ".noihkm.";
+public class DatabaseCreator extends DatabaseAccessor {
 
 	private Logger log = Logger.getInstance();
-	private Connection connection = null;
 
-	public DatabaseCreator() {
-
+	public DatabaseCreator(String dbUrl, String user, String password) {
+		super(dbUrl, user, password);
 	}
 
-	private void connect(String dbUrl, String user, String password) throws SQLException {
-		if (this.connection != null)
-			return;
-		log.info("Connecting to database...");
-		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e.getMessage());
-		}
-		this.connection = DriverManager.getConnection(dbUrl, user, password);
-		if (this.connection != null)
-			log.info("connected successfully.");
-	}
-
-	private void close() throws SQLException {
-		if (this.connection != null)
-			this.connection.close();
-		this.connection = null;
+	public void createTestDatabase(final String dbName) throws SQLException {
+		connect();
+		createOrReplaceDatabase(dbName);
+		createExampleData(dbName);
+		close();
 	}
 
 	private void createOrReplaceDatabase(final String dbName) throws SQLException {
@@ -105,17 +81,5 @@ public class DatabaseCreator {
 		for (String insert : inserts)
 			stmt.execute(insert);
 		log.info("inserted successfully.");
-	}
-
-	private void checkConnected() {
-		if (this.connection == null)
-			throw new RuntimeException("Database not connected. Call connect() before!");
-	}
-
-	public void createTestDatabase() throws SQLException {
-		connect(DB_URL, USER, PASS);
-		createOrReplaceDatabase(DB_NAME);
-		createExampleData(DB_NAME);
-		close();
 	}
 }

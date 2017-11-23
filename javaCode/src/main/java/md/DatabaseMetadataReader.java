@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import md.beans.Column;
 import md.beans.Table;
 
 public class DatabaseMetadataReader extends DatabaseAccessor {
@@ -22,32 +23,94 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 		connect();
 		DatabaseMetaData dbmd = getConnection().getMetaData();
 
-		ResultSet rs = dbmd.getTables(dbName, null, "", new String[] { "TABLE" }); // "VIEWS
+		ResultSet rs = dbmd.getTables(dbName, null, "", new String[] { "TABLE" });// VIEWS
 		ResultSetMetaData rsmd = rs.getMetaData();
 
 		int columnCount = rsmd.getColumnCount();
-//		log.debug("fetchSize: " + rs.getFetchSize());
-//		log.debug("columnCount: " + columnCount);
+		// log.debug("fetchSize: " + rs.getFetchSize());
+		// log.debug("columnCount: " + columnCount);
 
 		List<Table> tables = new ArrayList<Table>();
 		while (rs.next()) {
+			Table table = new Table();
+			boolean valid = false;
 			for (int i = 1; i <= columnCount; i++) {
 				String label = rsmd.getColumnLabel(i);
 				Object value = rs.getObject(i);
 
-				Table table = new Table();
 				if (label != null && label.equals("TABLE_NAME")) {
 					table.setName(value != null ? value.toString() : "isNull");
+					valid = true;
 				}
-/*
-				log.debug("\n" + label);
-				log.debug(value != null ? value.toString() : "null");
-*/
-				tables.add(table);
 			}
+			if (valid)
+				tables.add(table);
+		}
+		close();
+		return tables;
+	}
+
+	public List<Column> getColumns(final Table table) throws SQLException {
+		connect();
+		DatabaseMetaData dbmd = getConnection().getMetaData();
+
+		ResultSet rs = dbmd.getColumns(null, null, table.getName(), "");
+		ResultSetMetaData rsmd = rs.getMetaData();
+
+		int columnCount = rsmd.getColumnCount();
+
+		List<Column> cols = new ArrayList<Column>();
+		while (rs.next()) {
+
+			Column col = new Column();
+			int valid = 0;
+
+			for (int i = 1; i <= columnCount; i++) {
+				String label = rsmd.getColumnLabel(i);
+				Object value = rs.getObject(i);
+
+				if (label != null && label.equals("COLUMN_NAME")) {
+					valid++;
+					col.setName(value != null ? value.toString() : "isNull");
+				}
+				if (label != null && label.equals("TYPE_NAME")) {
+					valid++;
+					col.setType(value != null ? value.toString() : "isNull");
+				}
+			}
+
+			if (valid == 2)
+				cols.add(col);
 		}
 
-		return tables;
+		close();
+		return cols;
+	}
+
+	public List<String> getPrimaryKeys(final Table table) throws SQLException {
+		connect();
+		DatabaseMetaData dbmd = getConnection().getMetaData();
+
+		ResultSet rs = dbmd.getPrimaryKeys(null, null, table.getName());
+		ResultSetMetaData rsmd = rs.getMetaData();
+
+		int columnCount = rsmd.getColumnCount();
+
+		List<String> keys = new ArrayList<String>();
+		while (rs.next()) {
+
+			int valid = 0;
+
+			for (int i = 1; i <= columnCount; i++) {
+				String label = rsmd.getColumnLabel(i);
+				Object value = rs.getObject(i);
+				log.debug("label=" + label + " : object=" + value.toString());
+			}
+
+		}
+
+		close();
+		return keys;
 	}
 
 	// ---------------------------------------------------------

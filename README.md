@@ -1,13 +1,7 @@
 # dataModellingProject
-#change test
 Curso "Modelação de Dados", Ano letivo 17/18
 
- - Find a list of work that has already used out dataset ("State of the art")
-    - What was their issue, what did they adress?
-
-
 interesting link to database parser: https://stackoverflow.com/a/5477203/4649452
-
 
 # Project Specification
 
@@ -15,7 +9,7 @@ interesting link to database parser: https://stackoverflow.com/a/5477203/4649452
 
 ## Steps To Do
 
-1. find recent work on that topic
+1. find recent work on that topic ("State of the art")
     - lecture "from OLTP to Dimensional Models"
     - "Moody"-paper
     - be experts on these
@@ -39,7 +33,9 @@ We need to submit:
  - pdf report
  - 20min presentation on 19.-21. December
 
-# mysql Cheatsheet
+# scripts
+
+**mysql Cheatsheet**
 ```
 mysql -u root -p
 show databases;
@@ -49,12 +45,12 @@ SELECT * FROM <tableName>;
 exit
 ```
 
-#build script
+**build script**
 ```
 mvn package
 ```
 
-# run script
+**run script**
 ```
 java -cp target/project-0.0.1-SNAPSHOT.jar md.Hello
 ```

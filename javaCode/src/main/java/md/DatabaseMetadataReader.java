@@ -19,6 +19,35 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 		super(dbUrl, user, password);
 	}
 
+	public List<Table> doit(final String dbName) throws SQLException {
+		List<Table> metadata = getTables(dbName);
+
+		for (Table table : metadata) {
+			List<Column> cols = getColumns(dbName, table);
+			List<String> keys = getPrimaryKeys(dbName, table);
+			handlePks(cols, keys);
+			
+			// TODO foreign keys
+			
+			table.setCols(cols);
+		}
+
+		return metadata;
+	}
+
+	private void handlePks(List<Column> cols, List<String> keys) {
+		for(Column col:cols)
+		{
+			for(String pk:keys)
+			{
+				if(col.getName().equals(pk)){
+					col.setPrimaryKey(true);
+					break;
+				}
+			}
+		}
+	}
+
 	public List<Table> getTables(final String dbName) throws SQLException {
 		connect();
 		DatabaseMetaData dbmd = getConnection().getMetaData();
@@ -50,11 +79,11 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 		return tables;
 	}
 
-	public List<Column> getColumns(final Table table) throws SQLException {
+	public List<Column> getColumns(final String dbName, final Table table) throws SQLException {
 		connect();
 		DatabaseMetaData dbmd = getConnection().getMetaData();
 
-		ResultSet rs = dbmd.getColumns(null, null, table.getName(), "");
+		ResultSet rs = dbmd.getColumns(dbName, null, table.getName(), "");
 		ResultSetMetaData rsmd = rs.getMetaData();
 
 		int columnCount = rsmd.getColumnCount();
@@ -87,11 +116,11 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 		return cols;
 	}
 
-	public List<String> getPrimaryKeys(final Table table) throws SQLException {
+	public List<String> getPrimaryKeys(final String dbName, final Table table) throws SQLException {
 		connect();
 		DatabaseMetaData dbmd = getConnection().getMetaData();
 
-		ResultSet rs = dbmd.getPrimaryKeys(null, null, table.getName());
+		ResultSet rs = dbmd.getPrimaryKeys(dbName, null, table.getName());
 		ResultSetMetaData rsmd = rs.getMetaData();
 
 		int columnCount = rsmd.getColumnCount();
@@ -104,9 +133,19 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 			for (int i = 1; i <= columnCount; i++) {
 				String label = rsmd.getColumnLabel(i);
 				Object value = rs.getObject(i);
-				log.debug("label=" + label + " : object=" + value.toString());
-			}
 
+//				log.debug("label=" + label + " : object=" + (value != null ? value.toString() : "isNULL"));
+				if (label != null && label.equals("COLUMN_NAME")) {
+					valid++;
+					keys.add(value != null ? value.toString() : "isNull");
+				}
+				if (label != null && label.equals("KEY_SEQ")) {
+					// may be important some day
+				}
+				if (label != null && label.equals("PK_NAME")) {
+					// may be important some day
+				}
+			}
 		}
 
 		close();
@@ -135,7 +174,7 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 		}
 	}
 
-	public void doit() throws SQLException {
+	public void example() throws SQLException {
 		connect();
 		DatabaseMetaData md = getConnection().getMetaData();
 

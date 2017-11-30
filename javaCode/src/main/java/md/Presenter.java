@@ -26,9 +26,10 @@ public class Presenter {
 						String string = "\t" + col.getName();
 						if (col.isPrimaryKey())
 							string += " (PK)";
-						
-						//TODO foreign keys
-						
+
+						if (col.isForeignKey())
+							string += " (FK->" + col.getForeignKeyTable() + ":" + col.getForeignKeyColumn() + ")";
+
 						string += " [" + col.getType() + "]\n";
 						out.write(string.getBytes());
 					}

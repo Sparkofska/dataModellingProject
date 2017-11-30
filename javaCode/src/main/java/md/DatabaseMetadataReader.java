@@ -23,28 +23,65 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 		List<Table> metadata = getTables(dbName);
 
 		for (Table table : metadata) {
+			System.out.println("\nTABLE: " + table.getName());
 			List<Column> cols = getColumns(dbName, table);
-			List<String> keys = getPrimaryKeys(dbName, table);
-			handlePks(cols, keys);
-			
-			// TODO foreign keys
-			
+			List<String> pks = getPrimaryKeys(dbName, table);
+			List<ForeignKey> fks = getForeignKeys(dbName, table);
+			handlePks(cols, pks, fks);
 			table.setCols(cols);
 		}
 
 		return metadata;
 	}
 
-	private void handlePks(List<Column> cols, List<String> keys) {
-		for(Column col:cols)
-		{
-			for(String pk:keys)
-			{
-				if(col.getName().equals(pk)){
+	private void handlePks(List<Column> cols, List<String> primKeys, List<ForeignKey> forKeys) {
+		for (Column col : cols) {
+			// handle primary keys
+			for (String pk : primKeys) {
+				if (col.getName().equals(pk)) {
 					col.setPrimaryKey(true);
 					break;
 				}
 			}
+
+			// handle foreign keys
+			for (ForeignKey fk : forKeys) {
+				if (col.getName().equals(fk.getColname())) {
+					col.setForeignKey(true);
+					col.setForeignKeyTable(fk.getReferencingTable());
+					col.setForeignKeyColumn(fk.getReferencingColumn());
+				}
+			}
+		}
+	}
+
+	public class ForeignKey {
+		private String colname;
+		private String referencingTable;
+		private String referencingColumn;
+
+		public String getColname() {
+			return colname;
+		}
+
+		public void setColname(String colname) {
+			this.colname = colname;
+		}
+
+		public String getReferencingTable() {
+			return referencingTable;
+		}
+
+		public void setReferencingTable(String referencingTable) {
+			this.referencingTable = referencingTable;
+		}
+
+		public String getReferencingColumn() {
+			return referencingColumn;
+		}
+
+		public void setReferencingColumn(String referencingColumn) {
+			this.referencingColumn = referencingColumn;
 		}
 	}
 
@@ -101,8 +138,7 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 				if (label != null && label.equals("COLUMN_NAME")) {
 					valid++;
 					col.setName(value != null ? value.toString() : "isNull");
-				}
-				if (label != null && label.equals("TYPE_NAME")) {
+				} else if (label != null && label.equals("TYPE_NAME")) {
 					valid++;
 					col.setType(value != null ? value.toString() : "isNull");
 				}
@@ -134,18 +170,58 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 				String label = rsmd.getColumnLabel(i);
 				Object value = rs.getObject(i);
 
-//				log.debug("label=" + label + " : object=" + (value != null ? value.toString() : "isNULL"));
+				// log.debug("label=" + label + " : object=" + (value != null ?
+				// value.toString() : "isNULL"));
 				if (label != null && label.equals("COLUMN_NAME")) {
 					valid++;
 					keys.add(value != null ? value.toString() : "isNull");
-				}
-				if (label != null && label.equals("KEY_SEQ")) {
+				} else if (label != null && label.equals("KEY_SEQ")) {
 					// may be important some day
-				}
-				if (label != null && label.equals("PK_NAME")) {
+				} else if (label != null && label.equals("PK_NAME")) {
 					// may be important some day
 				}
 			}
+		}
+
+		close();
+		return keys;
+	}
+
+	public List<ForeignKey> getForeignKeys(final String dbName, final Table table) throws SQLException {
+		connect();
+		DatabaseMetaData dbmd = getConnection().getMetaData();
+
+		ResultSet rs = dbmd.getImportedKeys(dbName, null, table.getName());
+		ResultSetMetaData rsmd = rs.getMetaData();
+
+		int columnCount = rsmd.getColumnCount();
+
+		List<ForeignKey> keys = new ArrayList<ForeignKey>();
+		while (rs.next()) {
+
+			ForeignKey fk = new ForeignKey();
+			int valid = 0;
+
+			for (int i = 1; i <= columnCount; i++) {
+				String label = rsmd.getColumnLabel(i);
+				Object value = rs.getObject(i);
+
+//				log.debug("label=" + label + " : object=" + (value != null ? value.toString() : "isNULL"));
+				if (label != null && label.equals("PKTABLE_NAME")) {
+					valid++;
+					fk.setReferencingTable(value != null ? value.toString() : "isNull");
+				}
+				if (label != null && label.equals("PKCOLUMN_NAME")) {
+					valid++;
+					fk.setReferencingColumn(value != null ? value.toString() : "isNull");
+				}
+				if (label != null && label.equals("FKCOLUMN_NAME")) {
+					valid++;
+					fk.setColname(value != null ? value.toString() : "isNull");
+				}
+			}
+			if (valid == 3)
+				keys.add(fk);
 		}
 
 		close();

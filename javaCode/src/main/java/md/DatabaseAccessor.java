@@ -22,7 +22,7 @@ public class DatabaseAccessor {
 	protected void connect() throws SQLException {
 		if (this.connection != null)
 			return;
-		log.info("Connecting to database...");
+//		log.info("Connecting to database...");
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
@@ -30,8 +30,8 @@ public class DatabaseAccessor {
 			throw new RuntimeException(e.getMessage());
 		}
 		this.connection = DriverManager.getConnection(this.dbUrl, this.user, this.password);
-		if (this.connection != null)
-			log.info("connected successfully.");
+//		if (this.connection != null)
+//			log.info("connected successfully.");
 	}
 
 	protected void close() throws SQLException {

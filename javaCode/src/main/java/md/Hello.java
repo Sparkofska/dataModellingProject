@@ -48,7 +48,7 @@ public class Hello {
 
 			// 1. read meta data of given database
 			List<Table> tables = new DatabaseMetadataReader(DB_URL, credentials.username, credentials.password)
-					.doit(DB_NAME);
+					.getMetadata(DB_NAME);
 
 			// 2. present meta data to user
 			presenter.presentMetadata(tables);

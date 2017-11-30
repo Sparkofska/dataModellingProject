@@ -13,80 +13,47 @@ import md.beans.Table;
 
 public class DatabaseMetadataReader extends DatabaseAccessor {
 
+	@SuppressWarnings("unused")
 	private Logger log = Logger.getInstance();
 
 	public DatabaseMetadataReader(String dbUrl, String user, String password) {
 		super(dbUrl, user, password);
 	}
 
-	public List<Table> doit(final String dbName) throws SQLException {
+	public List<Table> getMetadata(final String dbName) throws SQLException {
+		connect();
+
 		List<Table> metadata = getTables(dbName);
 
 		for (Table table : metadata) {
-			System.out.println("\nTABLE: " + table.getName());
 			List<Column> cols = getColumns(dbName, table);
-			List<String> pks = getPrimaryKeys(dbName, table);
-			List<ForeignKey> fks = getForeignKeys(dbName, table);
-			handlePks(cols, pks, fks);
+			List<String> primKeys = getPrimaryKeys(dbName, table);
+			List<ForeignKey> forKeys = getForeignKeys(dbName, table);
+			for (Column col : cols) {
+				// handle primary keys
+				for (String pk : primKeys) {
+					if (col.getName().equals(pk)) {
+						col.setPrimaryKey(true);
+						break;
+					}
+				}
+
+				// handle foreign keys
+				for (ForeignKey fk : forKeys) {
+					if (col.getName().equals(fk.getColname())) {
+						col.setForeignKey(true);
+						col.setForeignKeyTable(fk.getReferencingTable());
+						col.setForeignKeyColumn(fk.getReferencingColumn());
+					}
+				}
+			}
 			table.setCols(cols);
 		}
-
+		close();
 		return metadata;
 	}
 
-	private void handlePks(List<Column> cols, List<String> primKeys, List<ForeignKey> forKeys) {
-		for (Column col : cols) {
-			// handle primary keys
-			for (String pk : primKeys) {
-				if (col.getName().equals(pk)) {
-					col.setPrimaryKey(true);
-					break;
-				}
-			}
-
-			// handle foreign keys
-			for (ForeignKey fk : forKeys) {
-				if (col.getName().equals(fk.getColname())) {
-					col.setForeignKey(true);
-					col.setForeignKeyTable(fk.getReferencingTable());
-					col.setForeignKeyColumn(fk.getReferencingColumn());
-				}
-			}
-		}
-	}
-
-	public class ForeignKey {
-		private String colname;
-		private String referencingTable;
-		private String referencingColumn;
-
-		public String getColname() {
-			return colname;
-		}
-
-		public void setColname(String colname) {
-			this.colname = colname;
-		}
-
-		public String getReferencingTable() {
-			return referencingTable;
-		}
-
-		public void setReferencingTable(String referencingTable) {
-			this.referencingTable = referencingTable;
-		}
-
-		public String getReferencingColumn() {
-			return referencingColumn;
-		}
-
-		public void setReferencingColumn(String referencingColumn) {
-			this.referencingColumn = referencingColumn;
-		}
-	}
-
-	public List<Table> getTables(final String dbName) throws SQLException {
-		connect();
+	private List<Table> getTables(final String dbName) throws SQLException {
 		DatabaseMetaData dbmd = getConnection().getMetaData();
 
 		ResultSet rs = dbmd.getTables(dbName, null, "", new String[] { "TABLE" });// VIEWS
@@ -112,12 +79,10 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 			if (valid)
 				tables.add(table);
 		}
-		close();
 		return tables;
 	}
 
-	public List<Column> getColumns(final String dbName, final Table table) throws SQLException {
-		connect();
+	private List<Column> getColumns(final String dbName, final Table table) throws SQLException {
 		DatabaseMetaData dbmd = getConnection().getMetaData();
 
 		ResultSet rs = dbmd.getColumns(dbName, null, table.getName(), "");
@@ -148,12 +113,10 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 				cols.add(col);
 		}
 
-		close();
 		return cols;
 	}
 
-	public List<String> getPrimaryKeys(final String dbName, final Table table) throws SQLException {
-		connect();
+	private List<String> getPrimaryKeys(final String dbName, final Table table) throws SQLException {
 		DatabaseMetaData dbmd = getConnection().getMetaData();
 
 		ResultSet rs = dbmd.getPrimaryKeys(dbName, null, table.getName());
@@ -164,8 +127,6 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 		List<String> keys = new ArrayList<String>();
 		while (rs.next()) {
 
-			int valid = 0;
-
 			for (int i = 1; i <= columnCount; i++) {
 				String label = rsmd.getColumnLabel(i);
 				Object value = rs.getObject(i);
@@ -173,7 +134,6 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 				// log.debug("label=" + label + " : object=" + (value != null ?
 				// value.toString() : "isNULL"));
 				if (label != null && label.equals("COLUMN_NAME")) {
-					valid++;
 					keys.add(value != null ? value.toString() : "isNull");
 				} else if (label != null && label.equals("KEY_SEQ")) {
 					// may be important some day
@@ -183,12 +143,10 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 			}
 		}
 
-		close();
 		return keys;
 	}
 
-	public List<ForeignKey> getForeignKeys(final String dbName, final Table table) throws SQLException {
-		connect();
+	private List<ForeignKey> getForeignKeys(final String dbName, final Table table) throws SQLException {
 		DatabaseMetaData dbmd = getConnection().getMetaData();
 
 		ResultSet rs = dbmd.getImportedKeys(dbName, null, table.getName());
@@ -206,7 +164,8 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 				String label = rsmd.getColumnLabel(i);
 				Object value = rs.getObject(i);
 
-//				log.debug("label=" + label + " : object=" + (value != null ? value.toString() : "isNULL"));
+				// log.debug("label=" + label + " : object=" + (value != null ?
+				// value.toString() : "isNULL"));
 				if (label != null && label.equals("PKTABLE_NAME")) {
 					valid++;
 					fk.setReferencingTable(value != null ? value.toString() : "isNull");
@@ -224,12 +183,41 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 				keys.add(fk);
 		}
 
-		close();
 		return keys;
 	}
 
+	private class ForeignKey {
+		private String colname;
+		private String referencingTable;
+		private String referencingColumn;
+
+		public String getColname() {
+			return colname;
+		}
+
+		public void setColname(String colname) {
+			this.colname = colname;
+		}
+
+		public String getReferencingTable() {
+			return referencingTable;
+		}
+
+		public void setReferencingTable(String referencingTable) {
+			this.referencingTable = referencingTable;
+		}
+
+		public String getReferencingColumn() {
+			return referencingColumn;
+		}
+
+		public void setReferencingColumn(String referencingColumn) {
+			this.referencingColumn = referencingColumn;
+		}
+	}
+
 	// ---------------------------------------------------------
-	static void dumpResultSet(ResultSet rs) throws SQLException {
+	static private void dumpResultSet(ResultSet rs) throws SQLException {
 		ResultSetMetaData md = rs.getMetaData();
 		int columnCount = md.getColumnCount();
 		PrintStream out = System.out;

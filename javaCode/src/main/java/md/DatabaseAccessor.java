@@ -11,6 +11,7 @@ public class DatabaseAccessor {
 	private String password;
 	protected Connection connection = null;
 
+	@SuppressWarnings("unused")
 	private Logger log = Logger.getInstance();
 
 	public DatabaseAccessor(final String dbUrl, final String user, final String password) {
@@ -22,7 +23,7 @@ public class DatabaseAccessor {
 	protected void connect() throws SQLException {
 		if (this.connection != null)
 			return;
-//		log.info("Connecting to database...");
+		// log.info("Connecting to database...");
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 		} catch (ClassNotFoundException e) {
@@ -30,8 +31,8 @@ public class DatabaseAccessor {
 			throw new RuntimeException(e.getMessage());
 		}
 		this.connection = DriverManager.getConnection(this.dbUrl, this.user, this.password);
-//		if (this.connection != null)
-//			log.info("connected successfully.");
+		// if (this.connection != null)
+		// log.info("connected successfully.");
 	}
 
 	protected void close() throws SQLException {
@@ -46,6 +47,9 @@ public class DatabaseAccessor {
 	}
 
 	protected Connection getConnection() {
+		if (this.connection == null)
+			throw new RuntimeException(
+					"No connection established. Call connect() first, before accessing the ocnnection!");
 		return this.connection;
 	}
 }

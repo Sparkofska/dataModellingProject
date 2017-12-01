@@ -1,6 +1,6 @@
 package md.beans;
 
-public class Column {
+public class Column implements Cloneable{
 
 	private String name;
 	private String type;
@@ -9,6 +9,20 @@ public class Column {
 	private String foreignKeyTable; // only set when foreignKey is true
 	private String foreignKeyColumn; // only set when foreignKey is true
 
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		Column clone = (Column) super.clone();
+	
+		clone.setName(getName()); // String is immutable
+		clone.setType(getType());
+		clone.setPrimaryKey(isPrimaryKey());
+		clone.setForeignKey(isForeignKey());
+		clone.setForeignKeyTable(getForeignKeyTable());
+		clone.setForeignKeyColumn(getForeignKeyColumn());
+		
+		return clone;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -55,6 +69,12 @@ public class Column {
 
 	public void setForeignKeyColumn(String foreignKeyColumn) {
 		this.foreignKeyColumn = foreignKeyColumn;
+	}
+
+	@Override
+	public String toString() {
+		return "Column [name=" + name + ", type=" + type + ", primaryKey=" + primaryKey + ", foreignKey=" + foreignKey
+				+ ", foreignKeyTable=" + foreignKeyTable + ", foreignKeyColumn=" + foreignKeyColumn + "]";
 	}
 
 }

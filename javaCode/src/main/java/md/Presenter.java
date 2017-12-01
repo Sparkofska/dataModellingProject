@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.List;
 
 import md.beans.Column;
+import md.beans.DimensionalModel;
 import md.beans.Table;
 
 public class Presenter {
@@ -23,16 +24,19 @@ public class Presenter {
 				List<Column> cols = t.getCols();
 				if (cols != null) {
 					for (Column col : cols) {
-						String string = "\t" + col.getName();
+						String string = "  " + col.getName();
+						string += " [" + col.getType() + "]";
+						
 						if (col.isPrimaryKey())
 							string += " (PK)";
 
 						if (col.isForeignKey())
 							string += " (FK->" + col.getForeignKeyTable() + ":" + col.getForeignKeyColumn() + ")";
 
-						string += " [" + col.getType() + "]\n";
+						string+="\n";
 						out.write(string.getBytes());
 					}
+					out.write("\n".getBytes());
 				}
 			}
 
@@ -44,5 +48,10 @@ public class Presenter {
 
 	private void handleException(IOException e) {
 		e.printStackTrace();
+	}
+
+	public void present(DimensionalModel suggestion) {
+		// TODO Auto-generated method stub
+		throw new RuntimeException("Come here, programmer, and do your work!");
 	}
 }

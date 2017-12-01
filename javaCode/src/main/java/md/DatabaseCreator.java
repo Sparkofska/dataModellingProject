@@ -1,5 +1,10 @@
 package md;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -18,6 +23,13 @@ public class DatabaseCreator extends DatabaseAccessor {
 		connect();
 		createOrReplaceDatabase(dbName);
 		createExampleData(dbName);
+		close();
+	}
+
+	public void createTestDatabaseMoody(final String dbName) throws SQLException, FileNotFoundException, IOException {
+		connect();
+		createOrReplaceDatabase(dbName);
+		createExampleDataMoody(dbName);
 		close();
 	}
 
@@ -81,5 +93,40 @@ public class DatabaseCreator extends DatabaseAccessor {
 		for (String insert : inserts)
 			stmt.execute(insert);
 		log.info("inserted successfully.");
+	}
+
+	private void createExampleDataMoody(final String dbName) throws SQLException, FileNotFoundException, IOException {
+
+		// parse sql file
+		File sqlFile = new File("../sqlScripts/createMoodyDb.sql");
+		StringBuilder sqlStatements = new StringBuilder();
+		BufferedReader fileReader = new BufferedReader(new FileReader(sqlFile));
+		String line;
+		while ((line = fileReader.readLine()) != null) {
+			sqlStatements.append(line);
+		}
+		fileReader.close();
+		
+		//execute commands from file
+		checkConnected();
+		Statement stmt = this.connection.createStatement();
+		String use = "USE " + dbName;
+		stmt.execute(use);
+
+		// create tables in database
+		log.info("creating tables and inserting values...");
+		for (String command : sqlStatements.toString().split(";")) {
+			command += ";";
+			stmt.execute(command);
+		}
+
+		// insert values to tables
+		List<String> inserts = new ArrayList<String>(5);
+//		inserts.add("INSERT INTO uni (id, name, city) VALUES (1, \"Universität\", \"Koblenz\");");
+
+		for (String insert : inserts)
+			stmt.execute(insert);
+		log.info("inserted successfully.");
+
 	}
 }

@@ -10,6 +10,7 @@ import md.beans.Table;
 
 public class Presenter {
 
+	private static final int N_SUGGEST_RESULTS = 4;
 	private OutputStream out;
 
 	public Presenter(OutputStream out) {
@@ -20,7 +21,8 @@ public class Presenter {
 		try {
 			for (Table t : metadata) {
 
-				out.write((t.getName() + " (importedKeys: "+t.getnImportedKeys()+", exportedKeys: " + t.getnExportedKeys() + ")\n").getBytes());
+				out.write((t.getName() + " (importedKeys: " + t.getnImportedKeys() + ", exportedKeys: "
+						+ t.getnExportedKeys() + ")\n").getBytes());
 				List<Column> cols = t.getCols();
 				if (cols != null) {
 					for (Column col : cols) {
@@ -51,7 +53,18 @@ public class Presenter {
 	}
 
 	public void present(DimensionalModel suggestion) {
-		// TODO Auto-generated method stub
-		throw new RuntimeException("Come here, programmer, and do your work!");
+		try {
+			out.write("SUGGESTION TRANSACTIONTABLES:\n".getBytes());
+			for (int i = 0; i < N_SUGGEST_RESULTS; i++) {
+				out.write((i+". ").getBytes());
+				out.write((suggestion.getTransactionTables().get(i).getName() + "\n").getBytes());
+			}
+			// TODO present more
+
+			out.flush();
+		} catch (IOException e) {
+			handleException(e);
+		}
+
 	}
 }

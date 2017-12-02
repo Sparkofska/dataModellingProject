@@ -18,7 +18,7 @@ public class Suggestor {
 		// Transactions:
 		// - - particular events at point of time (in interest of analysts
 		// - - contain measurements or quantities (that can be summarized)
-		// - - 
+		// - -
 		// Component:
 		// Classification:
 		// @formatter:off
@@ -33,23 +33,20 @@ public class Suggestor {
 
 			@Override
 			public int compare(Table t1, Table t2) {
-				// TODO sort the table in a way that the most likely transaction tables appear in the front
+				// TODO sort the table in a way that the most likely transaction
+				// tables appear in the front
 				return getForeignKeyRatio(t2) - getForeignKeyRatio(t1);
 			}
-			
-			private int getForeignKeyRatio(Table table)
-			{
+
+			private int getForeignKeyRatio(Table table) {
 				return table.getnImportedKeys() - table.getnExportedKeys();
 			}
 
 		});
-		
-		System.out.println("\n\nTHIS IS THE SUGGESTION FOR TRANSACTION TABLES:");
-		for(Table t : transactionSuggestion)
-		{
-			System.out.println(t.getName() + " ("+ (t.getnImportedKeys() - t.getnExportedKeys()) + ")");
-		}
 
-		return null;
+		DimensionalModel suggestion = new DimensionalModel();
+		suggestion.setTransactionTables(transactionSuggestion);
+
+		return suggestion;
 	}
 }

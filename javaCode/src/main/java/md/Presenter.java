@@ -20,20 +20,20 @@ public class Presenter {
 		try {
 			for (Table t : metadata) {
 
-				out.write((t.getName() + "\n").getBytes());
+				out.write((t.getName() + " (importedKeys: "+t.getnImportedKeys()+", exportedKeys: " + t.getnExportedKeys() + ")\n").getBytes());
 				List<Column> cols = t.getCols();
 				if (cols != null) {
 					for (Column col : cols) {
 						String string = "  " + col.getName();
 						string += " [" + col.getType() + "]";
-						
+
 						if (col.isPrimaryKey())
 							string += " (PK)";
 
 						if (col.isForeignKey())
 							string += " (FK->" + col.getForeignKeyTable() + ":" + col.getForeignKeyColumn() + ")";
 
-						string+="\n";
+						string += "\n";
 						out.write(string.getBytes());
 					}
 					out.write("\n".getBytes());

@@ -26,9 +26,12 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 		List<Table> metadata = getTables(dbName);
 
 		for (Table table : metadata) {
+
 			List<Column> cols = getColumns(dbName, table);
 			List<String> primKeys = getPrimaryKeys(dbName, table);
-			List<ForeignKey> forKeys = getForeignKeys(dbName, table);
+			List<ForeignKey> imKeys = getImportedKeys(dbName, table);
+			List<String> exKeys = getExportedKeys(dbName, table);
+
 			for (Column col : cols) {
 				// handle primary keys
 				for (String pk : primKeys) {
@@ -39,15 +42,18 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 				}
 
 				// handle foreign keys
-				for (ForeignKey fk : forKeys) {
+				for (ForeignKey fk : imKeys) {
 					if (col.getName().equals(fk.getColname())) {
 						col.setForeignKey(true);
 						col.setForeignKeyTable(fk.getReferencingTable());
 						col.setForeignKeyColumn(fk.getReferencingColumn());
 					}
 				}
+
 			}
 			table.setCols(cols);
+			table.setnExportedKeys(exKeys.size());
+			table.setnImportedKeys(imKeys.size());
 		}
 		close();
 		return metadata;
@@ -146,7 +152,7 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 		return keys;
 	}
 
-	private List<ForeignKey> getForeignKeys(final String dbName, final Table table) throws SQLException {
+	private List<ForeignKey> getImportedKeys(final String dbName, final Table table) throws SQLException {
 		DatabaseMetaData dbmd = getConnection().getMetaData();
 
 		ResultSet rs = dbmd.getImportedKeys(dbName, null, table.getName());
@@ -169,18 +175,45 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 				if (label != null && label.equals("PKTABLE_NAME")) {
 					valid++;
 					fk.setReferencingTable(value != null ? value.toString() : "isNull");
-				}
-				if (label != null && label.equals("PKCOLUMN_NAME")) {
+				} else if (label != null && label.equals("PKCOLUMN_NAME")) {
 					valid++;
 					fk.setReferencingColumn(value != null ? value.toString() : "isNull");
-				}
-				if (label != null && label.equals("FKCOLUMN_NAME")) {
+				} else if (label != null && label.equals("FKCOLUMN_NAME")) {
 					valid++;
 					fk.setColname(value != null ? value.toString() : "isNull");
 				}
 			}
 			if (valid == 3)
 				keys.add(fk);
+		}
+
+		return keys;
+	}
+
+	private List<String> getExportedKeys(final String dbName, final Table table) throws SQLException {
+		DatabaseMetaData dbmd = getConnection().getMetaData();
+
+		ResultSet rs = dbmd.getExportedKeys(dbName, null, table.getName());
+		ResultSetMetaData rsmd = rs.getMetaData();
+
+		int columnCount = rsmd.getColumnCount();
+
+		List<String> keys = new ArrayList<>();
+		while (rs.next()) {
+
+			ForeignKey fk = new ForeignKey();
+
+			for (int i = 1; i <= columnCount; i++) {
+				String label = rsmd.getColumnLabel(i);
+				Object value = rs.getObject(i);
+
+				// log.debug("label=" + label + " : object=" + (value != null ?
+				// value.toString() : "isNULL"));
+				if (label != null && label.equals("PKTABLE_NAME")) {
+					keys.add(value != null ? value.toString() : "isNull");
+					break;
+				}
+			}
 		}
 
 		return keys;

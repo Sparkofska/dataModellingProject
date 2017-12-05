@@ -16,7 +16,7 @@ public class Hello {
 	protected static final String DB_URL = "jdbc:mysql://localhost/";
 	protected static final String DB_NAME = "testdb";
 	private static final String DB_NAME_MOODY = "moody";
-	private static final String CREDENTIAL_FILE_PATH = "/home/jonas/M/Uni/10Semester/dataModelling/project/javaCode/src/main/java/md/credentials.txt";
+	private static final String CREDENTIAL_FILE_PATH = "src/main/java/md/credentials.txt";
 
 	public static void main(String[] args) throws SQLException {
 		System.out.println("Hello World!");

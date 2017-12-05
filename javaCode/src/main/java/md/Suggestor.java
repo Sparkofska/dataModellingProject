@@ -77,13 +77,26 @@ public class Suggestor {
 
 		});
 
+		// TODO add also graph meeting points between roots to transactions
+
 		return new TransactionSuggestion(roots, remains);
 	}
 
 	public static List<DimensionalModel> makeStarPeakSuggestion(final List<Table> oltp,
-			final List<Table> transactionTables) {
+			final TransactionSuggestion transactionsFixed) {
 		// TODO
 		List<DimensionalModel> ret = new ArrayList<>();
+
+		for (Table trans : transactionsFixed.getTransactions()) {
+			DimensionalModel model = new DimensionalModel();
+			model.addTransactionTable(trans);
+			
+			//TODO remove those who are not reachable
+			model.setUnclassifiedTables(new ArrayList<>(transactionsFixed.getUnclassified()));
+			
+			ret.add(model);
+		}
+
 		return ret;
 	}
 

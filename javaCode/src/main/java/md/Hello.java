@@ -70,7 +70,7 @@ public class Hello {
 			CliInteractor cli = new CliInteractor(presenter, System.in);
 			TransactionSuggestion transactionsFixed = cli.letUserConfirm(transactionSuggestion);
 			
-			List<DimensionalModel> modelSuggestion = Suggestor.makeStarPeakSuggestion(tables, transactionsFixed.getTransactions());
+			List<DimensionalModel> modelSuggestion = Suggestor.makeStarPeakSuggestion(tables, transactionsFixed);
 			List<DimensionalModel> modelFixed = cli.letUserConfirm(modelSuggestion);
 
 			// 8. convert database

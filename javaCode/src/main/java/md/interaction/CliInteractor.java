@@ -22,30 +22,32 @@ public class CliInteractor {
 	}
 
 	public TransactionSuggestion letUserConfirm(TransactionSuggestion suggestion) throws IOException {
+
+		presenter.present(suggestion);
 		// TODO
 		return suggestion;
 	}
 
 	public List<DimensionalModel> letUserConfirm(List<DimensionalModel> suggestion) throws IOException {
+		for (DimensionalModel model : suggestion)
+			presenter.present(model);
 		// TODO
 		return suggestion;
 	}
 
 	public DimensionalModel doMagic(List<DimensionalModel> suggestion) throws IOException {
-/*
-		DimensionalModel original = (DimensionalModel) suggestion.clone();
-
-		// first of all: transaction tables must be set
-		History history = letUserFreeEdit(suggestion);
-		this.TRANSACTION_TABLES_FIXED = true;
-
-		// suggest other tables to classify accordingly
-		alignTablesAutomatically(suggestion);
-
-		// user can make modifications as he likes
-		letUserFreeEdit(suggestion);
-		return suggestion;
- */
+		/*
+		 * DimensionalModel original = (DimensionalModel) suggestion.clone();
+		 * 
+		 * // first of all: transaction tables must be set History history =
+		 * letUserFreeEdit(suggestion); this.TRANSACTION_TABLES_FIXED = true;
+		 * 
+		 * // suggest other tables to classify accordingly
+		 * alignTablesAutomatically(suggestion);
+		 * 
+		 * // user can make modifications as he likes
+		 * letUserFreeEdit(suggestion); return suggestion;
+		 */
 		return null;
 	}
 

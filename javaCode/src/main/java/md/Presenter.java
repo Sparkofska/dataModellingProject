@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import md.Suggestor.TransactionSuggestion;
 import md.beans.Column;
 import md.beans.DimensionalModel;
 import md.beans.Table;
@@ -90,11 +91,30 @@ public class Presenter {
 			}
 
 			out.flush();
-		} catch (
-
-		IOException e) {
+		} catch (IOException e) {
 			handleException(e);
 		}
 
+	}
+
+	public void present(TransactionSuggestion suggestion) {
+		try {
+			out.write("TRANSACTION TABLES:\n".getBytes());
+			int i = 1;
+			for (Table t : suggestion.getTransactions()) {
+				out.write((i + ". " + t.getName() + "\n").getBytes());
+				i++;
+			}
+			
+			out.write("UNCLASSIFIED TABLES:\n".getBytes());
+			i = 1;
+			for (Table t : suggestion.getUnclassified()) {
+				out.write((i + ". " + t.getName() + "\n").getBytes());
+				i++;
+			}
+			out.flush();
+		} catch (IOException e) {
+			handleException(e);
+		}
 	}
 }

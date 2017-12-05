@@ -10,64 +10,56 @@ import md.beans.Column;
 import md.beans.DimensionalModel;
 import md.beans.Table;
 
+// @formatter:on
+/*
+ * our rules for classifying the tables: 1. transaction: roots of
+ * table-graph 2. components: 1st order neighbours of transactions 3.
+ * classification: all resuming tables will be collapsed as a hierarchy
+ */
+// @formatter:off
+
+// - find opportunities for grouping attributes and aggregateable
+// grouping attributes:
+// aggregateable: numeric values
+// Aggregation function: SUM, MEAN
 public class Suggestor {
 
-	private static final int N_SUGGEST_RESULTS = 4;
+	public static class TransactionSuggestion {
+		private List<Table> transactions;
+		private List<Table> unclassified;
 
-	
-	public List<DimensionalModel> makeSuggestion(List<Table> oltp) {
-		// TODO Auto-generated method stub
+		public TransactionSuggestion(List<Table> transactions, List<Table> unclassified) {
+			this.transactions = transactions;
+			this.unclassified = unclassified;
+		}
 
-		// @formatter:on
-		/*
-		 * our rules for classifying the tables:
-		 *  1. transaction: roots of table-graph
-		 *  2. components: 1st order neighbours of transactions
-		 *  3. classification: all resuming tables will be collapsed as a hierarchy
-		 */
-		// @formatter:off
+		public List<Table> getTransactions() {
+			return transactions;
+		}
 
-		// - find opportunities for grouping attributes and aggregateable
-		// grouping attributes:
-		// aggregateable: numeric values
-		// Aggregation function: SUM, MEAN
+		public void setTransactions(List<Table> transactions) {
+			this.transactions = transactions;
+		}
 
-		/*
-		 *This is the old approach 
-		 */
-//		List<Table> transactionSuggestion = new ArrayList<Table>(oltp);
-//		Collections.sort(transactionSuggestion, new Comparator<Table>() {
-//
-//			@Override
-//			public int compare(Table t1, Table t2) {
-//				// TODO sort the table in a way that the most likely transaction
-//				// tables appear in the front
-//				return getForeignKeyRatio(t2) - getForeignKeyRatio(t1);
-//			}
-//
-//			private int getForeignKeyRatio(Table table) {
-//				return table.getnImportedKeys() - table.getnExportedKeys();
-//			}
-//
-//		});
-//
-//		DimensionalModel suggestion = new DimensionalModel();
-//		int i = 0;
-//		for (Table t : transactionSuggestion) {
-//			if (i < N_SUGGEST_RESULTS) {
-//				suggestion.addTransactionTable(t);
-//			} else {
-//				suggestion.addUnclassifiedTable(t);
-//			}
-//			i++;
-//		}
+		public List<Table> getUnclassified() {
+			return unclassified;
+		}
+
+		public void setUnclassified(List<Table> unclassified) {
+			this.unclassified = unclassified;
+		}
+
+	}
+
+	public static TransactionSuggestion makeTransactionSuggestion(final List<Table> oltp) {
+
 		List<Table> roots = new ArrayList<Table>();
-		for(Table t:oltp){
-			if(t.getnExportedKeys() == 0)
+		for (Table t : oltp) {
+			if (t.getnExportedKeys() == 0)
 				roots.add(t);
 		}
 		List<Table> remains = new ArrayList<Table>(oltp);
-		for(Table t:roots){
+		for (Table t : roots) {
 			remains.remove(t);
 		}
 		Collections.sort(remains, new Comparator<Table>() {
@@ -84,33 +76,34 @@ public class Suggestor {
 			}
 
 		});
-		
-		DimensionalModel suggestion = new DimensionalModel();
-		suggestion.setTransactionTables(roots);
-		suggestion.setUnclassifiedTables(remains);
 
-		return suggestion;
+		return new TransactionSuggestion(roots, remains);
 	}
-	
-	private Collection<Table> getReferencedTables(Collection<Table> oltp, Table root)
-	{
+
+	public static List<DimensionalModel> makeStarPeakSuggestion(final List<Table> oltp,
+			final List<Table> transactionTables) {
+		// TODO
+		List<DimensionalModel> ret = new ArrayList<>();
+		return ret;
+	}
+
+	private Collection<Table> getReferencedTables(Collection<Table> oltp, Table root) {
 		List<Column> cols = root.getCols();
-		if(cols == null)
+		if (cols == null)
 			return new ArrayList<Table>(0);
-		
-		for(Column col:cols) {
-			if(col.isForeignKey())
-			{
+
+		ArrayList<Table> ret = new ArrayList<Table>();
+		for (Column col : cols) {
+			if (col.isForeignKey()) {
 				String referencedTableName = col.getForeignKeyTable();
-				for(Table t:oltp)
-				{
-					if(t.getName().equals(referencedTableName))
-						
+				for (Table t : oltp) {
+					if (t.getName().equals(referencedTableName)) {
+						ret.add(t);
+						break;
+					}
 				}
 			}
 		}
-		
-		ArrayList<Table> ret = new ArrayList<Table>();
 		return ret;
 	}
 }

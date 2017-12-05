@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import md.CredentialParser.Credentials;
+import md.Suggestor.TransactionSuggestion;
 import md.beans.DimensionalModel;
 import md.beans.Table;
 import md.interaction.CliInteractor;
@@ -60,17 +61,18 @@ public class Hello {
 			presenter.presentMetadata(tables);
 
 			// 3. think of suggestions for conversion
-			List<DimensionalModel> suggestion = new Suggestor().makeSuggestion(tables);
+			 TransactionSuggestion transactionSuggestion = Suggestor.makeTransactionSuggestion(tables);
 
 			// 4. present suggestions to user
 			// 5. Let user edit suggestions
 			// 6. [Breakpoint at each step of editing]
+			 // 7. Let user confirm
 			CliInteractor cli = new CliInteractor(presenter, System.in);
-			cli.doMagic(suggestion);
+			TransactionSuggestion transactionsFixed = cli.letUserConfirm(transactionSuggestion);
+			
+			List<DimensionalModel> modelSuggestion = Suggestor.makeStarPeakSuggestion(tables, transactionsFixed.getTransactions());
+			List<DimensionalModel> modelFixed = cli.letUserConfirm(modelSuggestion);
 
-			// 7. Let user confirm
-
-			List<DimensionalModel> confirmed = new ArrayList<>();// TODO
 			// 8. convert database
 			// TODO Dusan's part
 

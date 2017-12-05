@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import md.Presenter;
+import md.Suggestor.TransactionSuggestion;
 import md.beans.DimensionalModel;
 
 public class CliInteractor {
@@ -18,6 +19,16 @@ public class CliInteractor {
 	public CliInteractor(Presenter presenter, InputStream input) {
 		this.presenter = presenter;
 		this.input = new BufferedReader(new InputStreamReader(input));
+	}
+
+	public TransactionSuggestion letUserConfirm(TransactionSuggestion suggestion) throws IOException {
+		// TODO
+		return null;
+	}
+
+	public List<DimensionalModel> letUserConfirm(List<DimensionalModel> suggestion) throws IOException {
+		// TODO
+		return null;
 	}
 
 	public DimensionalModel doMagic(List<DimensionalModel> suggestion) throws IOException {

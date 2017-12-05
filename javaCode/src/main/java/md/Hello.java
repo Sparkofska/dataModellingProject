@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import md.CredentialParser.Credentials;
@@ -59,7 +60,7 @@ public class Hello {
 			presenter.presentMetadata(tables);
 
 			// 3. think of suggestions for conversion
-			DimensionalModel suggestion = new Suggestor().makeSuggestion(tables);
+			List<DimensionalModel> suggestion = new Suggestor().makeSuggestion(tables);
 
 			// 4. present suggestions to user
 			// 5. Let user edit suggestions
@@ -68,7 +69,10 @@ public class Hello {
 			cli.doMagic(suggestion);
 
 			// 7. Let user confirm
+
+			List<DimensionalModel> confirmed = new ArrayList<>();// TODO
 			// 8. convert database
+			// TODO Dusan's part
 
 		} catch (SQLException e) {
 			e.printStackTrace();

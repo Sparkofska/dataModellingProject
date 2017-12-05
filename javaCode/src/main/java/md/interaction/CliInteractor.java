@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import md.Presenter;
 import md.beans.DimensionalModel;
@@ -19,21 +20,21 @@ public class CliInteractor {
 		this.input = new BufferedReader(new InputStreamReader(input));
 	}
 
-	public DimensionalModel doMagic(DimensionalModel model) throws IOException {
+	public DimensionalModel doMagic(List<DimensionalModel> suggestion) throws IOException {
 
-		DimensionalModel original = (DimensionalModel) model.clone();
+		DimensionalModel original = (DimensionalModel) suggestion.clone();
 
 		// first of all: transaction tables must be set
-		History history = letUserFreeEdit(model);
+		History history = letUserFreeEdit(suggestion);
 		this.TRANSACTION_TABLES_FIXED = true;
 
 		// suggest other tables to classify accordingly
-		alignTablesAutomatically(model);
+		alignTablesAutomatically(suggestion);
 
 		// user can make modifications as he likes
-		letUserFreeEdit(model);
+		letUserFreeEdit(suggestion);
 
-		return model;
+		return suggestion;
 	}
 
 	private History letUserFreeEdit(DimensionalModel model) throws IOException {

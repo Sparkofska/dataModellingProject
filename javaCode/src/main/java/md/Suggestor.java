@@ -15,7 +15,7 @@ public class Suggestor {
 	private static final int N_SUGGEST_RESULTS = 4;
 
 	
-	public DimensionalModel makeSuggestion(List<Table> oltp) {
+	public List<DimensionalModel> makeSuggestion(List<Table> oltp) {
 		// TODO Auto-generated method stub
 
 		// @formatter:on
@@ -99,7 +99,15 @@ public class Suggestor {
 			return new ArrayList<Table>(0);
 		
 		for(Column col:cols) {
-//			if(col.isForeignKey())
+			if(col.isForeignKey())
+			{
+				String referencedTableName = col.getForeignKeyTable();
+				for(Table t:oltp)
+				{
+					if(t.getName().equals(referencedTableName))
+						
+				}
+			}
 		}
 		
 		ArrayList<Table> ret = new ArrayList<Table>();

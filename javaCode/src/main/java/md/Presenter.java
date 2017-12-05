@@ -10,11 +10,18 @@ import md.beans.Table;
 
 public class Presenter {
 
-	private static final int N_SUGGEST_RESULTS = 4;
 	private OutputStream out;
 
 	public Presenter(OutputStream out) {
 		this.out = out;
+	}
+
+	public void present(String msg) {
+		try {
+			out.write((msg + "\n").getBytes());
+		} catch (IOException e) {
+			handleException(e);
+		}
 	}
 
 	public void presentMetadata(List<Table> metadata) {
@@ -54,15 +61,38 @@ public class Presenter {
 
 	public void present(DimensionalModel suggestion) {
 		try {
-			out.write("SUGGESTION TRANSACTIONTABLES:\n".getBytes());
-			for (int i = 0; i < N_SUGGEST_RESULTS; i++) {
-				out.write((i+". ").getBytes());
-				out.write((suggestion.getTransactionTables().get(i).getName() + "\n").getBytes());
+			out.write("TRANSACTION TABLES:\n".getBytes());
+			int i = 1;
+			for (Table t : suggestion.getTransactionTables()) {
+				out.write((i + ". " + t.getName() + "\n").getBytes());
+				i++;
 			}
-			// TODO present more
+
+			out.write("COMPONENT TABLES:\n".getBytes());
+			i = 1;
+			for (Table t : suggestion.getComponentTables()) {
+				out.write((i + ". " + t.getName() + "\n").getBytes());
+				i++;
+			}
+
+			out.write("CLASSIFICATION TABLES:\n".getBytes());
+			i = 1;
+			for (Table t : suggestion.getClassificationTables()) {
+				out.write((i + ". " + t.getName() + "\n").getBytes());
+				i++;
+			}
+
+			out.write("UNCLASSIFIED TABLES:\n".getBytes());
+			i = 1;
+			for (Table t : suggestion.getUnclassifiedTables()) {
+				out.write((i + ". " + t.getName() + "\n").getBytes());
+				i++;
+			}
 
 			out.flush();
-		} catch (IOException e) {
+		} catch (
+
+		IOException e) {
 			handleException(e);
 		}
 

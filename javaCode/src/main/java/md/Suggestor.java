@@ -10,6 +10,8 @@ import md.beans.Table;
 
 public class Suggestor {
 
+	private static final int N_SUGGEST_RESULTS = 4;
+
 	public DimensionalModel makeSuggestion(List<Table> oltp) {
 		// TODO Auto-generated method stub
 
@@ -45,7 +47,15 @@ public class Suggestor {
 		});
 
 		DimensionalModel suggestion = new DimensionalModel();
-		suggestion.setTransactionTables(transactionSuggestion);
+		int i = 0;
+		for (Table t : transactionSuggestion) {
+			if (i < N_SUGGEST_RESULTS) {
+				suggestion.addTransactionTable(t);
+			} else {
+				suggestion.addUnclassifiedTable(t);
+			}
+			i++;
+		}
 
 		return suggestion;
 	}

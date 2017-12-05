@@ -9,6 +9,7 @@ import java.util.List;
 import md.CredentialParser.Credentials;
 import md.beans.DimensionalModel;
 import md.beans.Table;
+import md.interaction.CliInteractor;
 
 public class Hello {
 
@@ -61,11 +62,10 @@ public class Hello {
 			DimensionalModel suggestion = new Suggestor().makeSuggestion(tables);
 
 			// 4. present suggestions to user
-			presenter.present(suggestion);
-
 			// 5. Let user edit suggestions
 			// 6. [Breakpoint at each step of editing]
-			Memento<DimensionalModel> edit = new Memento<>(suggestion);
+			CliInteractor cli = new CliInteractor(presenter, System.in);
+			cli.doMagic(suggestion);
 
 			// 7. Let user confirm
 			// 8. convert database
@@ -73,6 +73,8 @@ public class Hello {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (RuntimeException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

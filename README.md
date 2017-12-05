@@ -53,4 +53,5 @@ mvn package
 **run script**
 ```
 java -cp target/project-0.0.1-SNAPSHOT.jar md.Hello
+java -cp target/project-0.0.1-SNAPSHOT-jar-with-dependencies.jar md.Hello
 ```

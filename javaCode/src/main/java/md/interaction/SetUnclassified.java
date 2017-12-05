@@ -1,7 +1,5 @@
 package md.interaction;
 
-import java.awt.Component;
-
 import md.beans.DimensionalModel;
 import md.beans.Table;
 

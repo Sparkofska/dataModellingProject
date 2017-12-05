@@ -23,16 +23,16 @@ public class CliInteractor {
 
 	public TransactionSuggestion letUserConfirm(TransactionSuggestion suggestion) throws IOException {
 		// TODO
-		return null;
+		return suggestion;
 	}
 
 	public List<DimensionalModel> letUserConfirm(List<DimensionalModel> suggestion) throws IOException {
 		// TODO
-		return null;
+		return suggestion;
 	}
 
 	public DimensionalModel doMagic(List<DimensionalModel> suggestion) throws IOException {
-
+/*
 		DimensionalModel original = (DimensionalModel) suggestion.clone();
 
 		// first of all: transaction tables must be set
@@ -44,8 +44,9 @@ public class CliInteractor {
 
 		// user can make modifications as he likes
 		letUserFreeEdit(suggestion);
-
 		return suggestion;
+ */
+		return null;
 	}
 
 	private History letUserFreeEdit(DimensionalModel model) throws IOException {

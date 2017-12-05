@@ -48,6 +48,7 @@ exit
 **build script**
 ```
 mvn package
+mvn package assembly:single
 ```
 
 **run script**

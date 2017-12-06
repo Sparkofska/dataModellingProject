@@ -13,7 +13,7 @@ public class TransactionSuggestion {
 	}
 
 	/**
-	 * copy constructor
+	 * copy constructor. Be careful: Lists are cloned but not there elements.
 	 */
 	public TransactionSuggestion(TransactionSuggestion orig) {
 		this(new ArrayList<Table>(orig.getTransactions()), new ArrayList<Table>(orig.getUnclassified()));
@@ -47,6 +47,13 @@ public class TransactionSuggestion {
 				return;
 			}
 		}
+		// handle case that tableName was not found
+		for (Table t : getTransactions())
+			// of table already at destination
+			if (t.getName().equals(tableName))
+				// do nothing
+				return;
+		// otherwise throw
 		throw new IllegalArgumentException(
 				"A table with the specified name '" + tableName + "' does not exist in the unclassified tables.");
 	}
@@ -59,6 +66,13 @@ public class TransactionSuggestion {
 				return;
 			}
 		}
+		// handle case that tableName was not found
+		for (Table t : getUnclassified())
+			// of table already at destination
+			if (t.getName().equals(tableName))
+				// do nothing
+				return;
+		// otherwise throw
 		throw new IllegalArgumentException(
 				"A table with the specified name '" + tableName + "' does not exist in the transaction tables.");
 	}

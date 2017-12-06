@@ -201,8 +201,6 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 		List<String> keys = new ArrayList<>();
 		while (rs.next()) {
 
-			ForeignKey fk = new ForeignKey();
-
 			for (int i = 1; i <= columnCount; i++) {
 				String label = rsmd.getColumnLabel(i);
 				Object value = rs.getObject(i);

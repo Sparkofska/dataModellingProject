@@ -30,70 +30,7 @@ public class CliInteractor {
 
 		boolean confirmed = false;
 		while (!confirmed) {
-
-			presenter.present("");
-			presenter.present(edit);
-
-			promptHelp(false);
-
-			String line = input.readLine();
-			String[] lineParts = line.split(" ");
-			Command command = null;
-
-			switch (lineParts[0]) {
-			case "set":
-				switch (lineParts[2]) {
-				case "transaction":
-					command = new AddTransactionTable(edit, lineParts[1]);
-					break;
-				case "unclassified":
-					command = new RemoveTransactionTable(edit, lineParts[1]);
-					break;
-
-				default:
-					throw new WrongUserInputException(
-							"Wrong input for set: can only be 'transaction' or 'unclassified' but was " + lineParts[2]);
-				}
-				history.addStep(command);
-				break;
-			case "fix":
-				confirmed = true;
-				break;
-			case "save":
-				// TODO implement save action
-				break;
-
-			case "undo":
-				command = history.undo();
-				break;
-
-			case "help":
-				promptHelp(true);
-				break;
-
-			default:
-				throw new WrongUserInputException("Wrong input: " + line);
-			}
-		}
-		return edit;
-	}
-
-	public List<DimensionalModel> letUserConfirm(List<DimensionalModel> suggestion) throws IOException {
-
-		List<DimensionalModel> edits = new ArrayList<>(suggestion.size());
-		int i = 0;
-		for (DimensionalModel rename : suggestion) {
-
-			DimensionalModel edit = new DimensionalModel(rename);
-			edits.add(edit);
-
-			History history = new History();
-			presenter.present("");
-			presenter.present("For every selected transaction table the components and classifications must be specified!");
-			presenter.present(suggestion, i++);
-
-			boolean confirmed = false;
-			while (!confirmed) {
+			try {
 
 				presenter.present("");
 				presenter.present(edit);
@@ -106,27 +43,28 @@ public class CliInteractor {
 
 				switch (lineParts[0]) {
 				case "set":
+					if(lineParts.length != 3)
+						throw new WrongUserInputException("Wrong input for set. use it this way: set <TableName> <transaction, unclassified>");
 					switch (lineParts[2]) {
-					case "component":
-						command = new SetComponent(edit, lineParts[1]);
+					case "transaction":
+						command = new AddTransactionTable(edit, lineParts[1]);
 						break;
-
-					case "classification":
-						command = new SetClassification(edit, lineParts[1]);
-						break;
-
 					case "unclassified":
-						command = new SetUnclassified(edit, lineParts[1]);
+						command = new RemoveTransactionTable(edit, lineParts[1]);
 						break;
 
 					default:
 						throw new WrongUserInputException(
-								"Wrong input for set: can only be 'component', 'classification' or 'unclassified' but was "
+								"Wrong input for set: can only be 'transaction' or 'unclassified' but was "
 										+ lineParts[2]);
 					}
-					history.addStep(command);
+					try {
+						history.addStep(command);
+					} catch (IllegalArgumentException e) {
+						throw new WrongUserInputException("Wrong input: the table " + lineParts[1] + " does not exist.",
+								e);
+					}
 					break;
-
 				case "fix":
 					confirmed = true;
 					break;
@@ -144,6 +82,91 @@ public class CliInteractor {
 
 				default:
 					throw new WrongUserInputException("Wrong input: " + line);
+				}
+			} catch (WrongUserInputException e) {
+				presenter.present(e.getMessage());
+			}
+		}
+		return edit;
+	}
+
+	public List<DimensionalModel> letUserConfirm(List<DimensionalModel> suggestion) throws IOException {
+
+		List<DimensionalModel> edits = new ArrayList<>(suggestion.size());
+		int i = 0;
+		for (DimensionalModel rename : suggestion) {
+
+			DimensionalModel edit = new DimensionalModel(rename);
+			edits.add(edit);
+
+			History history = new History();
+			presenter.present("");
+			presenter.present(
+					"For every selected transaction table the components and classifications must be specified!");
+			presenter.present(suggestion, i++);
+
+			boolean confirmed = false;
+			while (!confirmed) {
+				try {
+					presenter.present("");
+					presenter.present(edit);
+
+					promptHelp(false);
+
+					String line = input.readLine();
+					String[] lineParts = line.split(" ");
+					Command command = null;
+
+					switch (lineParts[0]) {
+					case "set":
+						if(lineParts.length != 3)
+							throw new WrongUserInputException("Wrong input for set. use it this way: set <TableName> <component, classification, unclassified>");
+						switch (lineParts[2]) {
+						case "component":
+							command = new SetComponent(edit, lineParts[1]);
+							break;
+
+						case "classification":
+							command = new SetClassification(edit, lineParts[1]);
+							break;
+
+						case "unclassified":
+							command = new SetUnclassified(edit, lineParts[1]);
+							break;
+
+						default:
+							throw new WrongUserInputException(
+									"Wrong input for set: can only be 'component', 'classification' or 'unclassified' but was "
+											+ lineParts[2]);
+						}
+						try {
+							history.addStep(command);
+						} catch (IllegalArgumentException e) {
+							throw new WrongUserInputException(
+									"Wrong input: the table " + lineParts[1] + " does not exist.", e);
+						}
+						break;
+
+					case "fix":
+						confirmed = true;
+						break;
+					case "save":
+						// TODO implement save action
+						break;
+
+					case "undo":
+						command = history.undo();
+						break;
+
+					case "help":
+						promptHelp(true);
+						break;
+
+					default:
+						throw new WrongUserInputException("Wrong input: " + line);
+					}
+				} catch (WrongUserInputException e) {
+					presenter.present(e.getMessage());
 				}
 			}
 		}

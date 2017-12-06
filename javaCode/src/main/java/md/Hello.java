@@ -4,13 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import md.CredentialParser.Credentials;
-import md.Suggestor.TransactionSuggestion;
 import md.beans.DimensionalModel;
 import md.beans.Table;
+import md.beans.TransactionSuggestion;
 import md.interaction.CliInteractor;
 
 public class Hello {
@@ -25,6 +24,7 @@ public class Hello {
 		Credentials credentials = new CredentialParser(new File(CREDENTIAL_FILE_PATH)).doMagic();
 		// createExampleDatabase(credentials);
 		pipeline(credentials);
+		System.out.println("terminated.");
 	}
 
 	// @formatter:off
@@ -58,7 +58,7 @@ public class Hello {
 					.getMetadata(DB_NAME_MOODY);
 
 			// 2. present meta data to user
-			presenter.presentMetadata(tables);
+//			presenter.presentMetadata(tables);
 
 			// 3. think of suggestions for conversion
 			 TransactionSuggestion transactionSuggestion = Suggestor.makeTransactionSuggestion(tables);

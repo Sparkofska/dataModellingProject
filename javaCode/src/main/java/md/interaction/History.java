@@ -16,7 +16,6 @@ public class History {
 	}
 
 	/**
-	 * 
 	 * @return The Command that was undone. NULL if no steps for undo available.
 	 */
 	public Command undo() {

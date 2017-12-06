@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import md.beans.Column;
 import md.beans.DimensionalModel;
 import md.beans.Table;
+import md.beans.TransactionSuggestion;
 
 // @formatter:on
 /*
@@ -23,33 +26,6 @@ import md.beans.Table;
 // aggregateable: numeric values
 // Aggregation function: SUM, MEAN
 public class Suggestor {
-
-	public static class TransactionSuggestion {
-		private List<Table> transactions;
-		private List<Table> unclassified;
-
-		public TransactionSuggestion(List<Table> transactions, List<Table> unclassified) {
-			this.transactions = transactions;
-			this.unclassified = unclassified;
-		}
-
-		public List<Table> getTransactions() {
-			return transactions;
-		}
-
-		public void setTransactions(List<Table> transactions) {
-			this.transactions = transactions;
-		}
-
-		public List<Table> getUnclassified() {
-			return unclassified;
-		}
-
-		public void setUnclassified(List<Table> unclassified) {
-			this.unclassified = unclassified;
-		}
-
-	}
 
 	public static TransactionSuggestion makeTransactionSuggestion(final List<Table> oltp) {
 
@@ -84,23 +60,71 @@ public class Suggestor {
 
 	public static List<DimensionalModel> makeStarPeakSuggestion(final List<Table> oltp,
 			final TransactionSuggestion transactionsFixed) {
-		// TODO
+
 		List<DimensionalModel> ret = new ArrayList<>();
 
 		for (Table trans : transactionsFixed.getTransactions()) {
 			DimensionalModel model = new DimensionalModel();
 			model.addTransactionTable(trans);
-			
-			//TODO remove those who are not reachable
-			model.setUnclassifiedTables(new ArrayList<>(transactionsFixed.getUnclassified()));
-			
+
+			// remove those who are not reachable
+			Collection<Table> reachable = getReachableTables(oltp, trans);
+
+			// find direct neighbours of transactions
+			// if neighbour is leaf, add to Classification
+			// else add to component
+			Collection<Table> componentCandidates = getReferencedTables(reachable, trans);
+			for (Table cand : componentCandidates) {
+				if (cand.getnImportedKeys() == 0) {
+					model.addClassificationTable(cand);
+				} else {
+					model.addComponentTable(cand);
+				}
+			}
+
+			// rest is Classification
+			Set<Table> rest = makeRelativeComplement(reachable, componentCandidates);
+			for (Table classific : rest) {
+				model.addClassificationTable(classific);
+			}
+
 			ret.add(model);
 		}
-
 		return ret;
 	}
 
-	private Collection<Table> getReferencedTables(Collection<Table> oltp, Table root) {
+	/**
+	 * Creates a copy of set which misses the elements of subSet. In other
+	 * words: Removes all the elements of subSet from set leaving the original
+	 * set untouched.
+	 */
+	private static Set<Table> makeRelativeComplement(final Collection<Table> set, final Collection<Table> subSet) {
+		Set<Table> ret = new HashSet<>(set);
+		for (Table sub : subSet)
+			ret.remove(sub);
+		return ret;
+	}
+
+	/**
+	 * Retrieves all Tables from oltp (without altering oltp itself) that are
+	 * reachable from root by a chain of foreign keys. Excluding root itself.
+	 */
+	private static Set<Table> getReachableTables(final Collection<Table> oltp, final Table root) {
+		Set<Table> ret = new HashSet<>();
+		for (Table child : getReferencedTables(oltp, root)) {
+			if (!ret.contains(child)) {
+				ret.add(child);
+				ret.addAll(getReachableTables(oltp, child));
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Retrieves all Tables from oltp (without altering oltp itself) that are
+	 * directly referenced by foreign keys of root. Excluding root itself.
+	 */
+	private static Collection<Table> getReferencedTables(final Collection<Table> oltp, final Table root) {
 		List<Column> cols = root.getCols();
 		if (cols == null)
 			return new ArrayList<Table>(0);

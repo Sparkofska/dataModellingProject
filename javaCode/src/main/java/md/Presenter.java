@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
-import md.Suggestor.TransactionSuggestion;
 import md.beans.Column;
 import md.beans.DimensionalModel;
 import md.beans.Table;
+import md.beans.TransactionSuggestion;
 
 public class Presenter {
 
@@ -97,6 +97,33 @@ public class Presenter {
 
 	}
 
+	public void present(List<DimensionalModel> models) {
+		present(models, -1);
+	}
+
+	public void present(List<DimensionalModel> models, int marked) {
+		try {
+			int i = 0;
+			for (DimensionalModel model : models) {
+				out.write((i++ == marked ? " * " : "   ").getBytes());
+
+				boolean isFirst = true;
+				for (Table t : model.getTransactionTables()) {
+					if (!isFirst) {
+						out.write(", ".getBytes());
+						isFirst = false;
+					}
+					out.write(t.getName().getBytes());
+				}
+				out.write("\n".getBytes());
+			}
+			out.flush();
+		} catch (IOException e) {
+			handleException(e);
+		}
+
+	}
+
 	public void present(TransactionSuggestion suggestion) {
 		try {
 			out.write("TRANSACTION TABLES:\n".getBytes());
@@ -105,7 +132,7 @@ public class Presenter {
 				out.write((i + ". " + t.getName() + "\n").getBytes());
 				i++;
 			}
-			
+
 			out.write("UNCLASSIFIED TABLES:\n".getBytes());
 			i = 1;
 			for (Table t : suggestion.getUnclassified()) {

@@ -10,25 +10,23 @@ public class DimensionalModel implements Cloneable {
 	private List<Table> classificationTables;
 	private List<Table> unclassifiedTables;
 
-	@Override
-	public Object clone() {
-		try {
-			DimensionalModel clone = (DimensionalModel) super.clone();
-			clone.setTransactionTables(new ArrayList<Table>(getTransactionTables()));
-			clone.setComponentTables(new ArrayList<Table>(getComponentTables()));
-			clone.setClassificationTables(new ArrayList<Table>(getClassificationTables()));
-			clone.setUnclassifiedTables(new ArrayList<Table>(getUnclassifiedTables()));
-			return clone;
-		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException(e);
-		}
-		// TODO Auto-generated method stub
+	public DimensionalModel() {
+	}
+
+	/**
+	 * copy constructor. Be careful: Lists are cloned but not their elements.
+	 */
+	public DimensionalModel(DimensionalModel orig) {
+		this.transactionTables = new ArrayList<>(orig.getTransactionTables());
+		this.componentTables = new ArrayList<>(orig.getComponentTables());
+		this.classificationTables = new ArrayList<>(orig.getClassificationTables());
+		this.unclassifiedTables = new ArrayList<>(orig.getUnclassifiedTables());
 	}
 
 	/**
 	 * Retrieves and removes the specified table from this model. Assuming all
-	 * tables in the model have distinct names; Otherwise the first occurrence of
-	 * the specified name will be retrieved.
+	 * tables in the model have distinct names; Otherwise the first occurrence
+	 * of the specified name will be retrieved.
 	 * 
 	 * @param tableName
 	 * @return The removed table. NULL if no table having the given name is

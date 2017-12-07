@@ -43,8 +43,9 @@ public class CliInteractor {
 
 				switch (lineParts[0]) {
 				case "set":
-					if(lineParts.length != 3)
-						throw new WrongUserInputException("Wrong input for set. use it this way: set <TableName> <transaction, unclassified>");
+					if (lineParts.length != 3)
+						throw new WrongUserInputException(
+								"Wrong input for set. use it this way: set <TableName> <transaction, unclassified>");
 					switch (lineParts[2]) {
 					case "transaction":
 						command = new AddTransactionTable(edit, lineParts[1]);
@@ -69,7 +70,14 @@ public class CliInteractor {
 					confirmed = true;
 					break;
 				case "save":
-					// TODO implement save action
+					if (lineParts.length != 2)
+						throw new WrongUserInputException("Wrong input for save. Use it this way: save <filename>");
+					try {
+						SaveAndLoad.save(lineParts[1], edit);
+					} catch (IOException ioe) {
+						presenter.present(
+								"SAVE not possible due to " + ioe.getClass().getName() + " (" + ioe.getMessage() + ")");
+					}
 					break;
 
 				case "undo":
@@ -119,8 +127,9 @@ public class CliInteractor {
 
 					switch (lineParts[0]) {
 					case "set":
-						if(lineParts.length != 3)
-							throw new WrongUserInputException("Wrong input for set. use it this way: set <TableName> <component, classification, unclassified>");
+						if (lineParts.length != 3)
+							throw new WrongUserInputException(
+									"Wrong input for set. use it this way: set <TableName> <component, classification, unclassified>");
 						switch (lineParts[2]) {
 						case "component":
 							command = new SetComponent(edit, lineParts[1]);
@@ -151,7 +160,14 @@ public class CliInteractor {
 						confirmed = true;
 						break;
 					case "save":
-						// TODO implement save action
+						if (lineParts.length != 2)
+							throw new WrongUserInputException("Wrong input for save. Use it this way: save <filename>");
+						try {
+							SaveAndLoad.save(lineParts[1], edits);
+						} catch (IOException ioe) {
+							presenter.present("SAVE not possible due to " + ioe.getClass().getName() + " ("
+									+ ioe.getMessage() + ")");
+						}
 						break;
 
 					case "undo":

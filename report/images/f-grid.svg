@@ -1,0 +1,134 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: fig2dev Version 3.2 Patchlevel 5e -->
+<!-- CreationDate: Tue Aug 23 10:46:16 2016 -->
+<!-- Magnification: 1.050 -->
+<svg	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	width="5.9in" height="2.7in"
+	viewBox="932 459 7112 3297">
+<g style="stroke-width:.025in; fill:none">
+<!-- Line: box -->
+<rect x="1417" y="472" width="472" height="1653" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+fill:#000000;
+"/>
+<!-- Line: box -->
+<rect x="2598" y="472" width="472" height="1653" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+fill:#000000;
+"/>
+<!-- Line: box -->
+<rect x="3779" y="472" width="472" height="1653" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+fill:#000000;
+"/>
+<!-- Line: box -->
+<rect x="4960" y="472" width="472" height="1653" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+fill:#000000;
+"/>
+<!-- Line: box -->
+<rect x="6141" y="472" width="472" height="1653" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+fill:#000000;
+"/>
+<!-- Line: box -->
+<rect x="944" y="472" width="6141" height="1653" rx="0" 
+style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="1653,2125
+2598,3354
+" style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="2834,2125
+2598,3354
+" style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="4015,2125
+2598,3354
+" style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="4269,2362
+4942,2362
+" style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Arrowhead on XXXpoint 4251 2362 - 4976 2362-->
+<polyline points="4832 2393
+4958 2362
+4832 2330
+" style="stroke:#000000;stroke-width:8;stroke-miterlimit:8;
+"/>
+<!-- Arrowhead on XXXpoint 4960 2362 - 4236 2362-->
+<polyline points="4380 2330
+4254 2362
+4380 2393
+" style="stroke:#000000;stroke-width:8;stroke-miterlimit:8;
+"/>
+<!-- Line -->
+<polyline points="4251,2125
+4251,2598
+" style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="4960,2125
+4960,2598
+" style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="6992,472
+7559,472
+" style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="7039,2125
+7559,2125
+" style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Line -->
+<polyline points="7322,490
+7322,2108
+" style="stroke:#000000;stroke-width:8;
+stroke-linejoin:miter; stroke-linecap:butt;
+"/>
+<!-- Arrowhead on XXXpoint 7322 472 - 7322 2141-->
+<polyline points="7291 1997
+7322 2123
+7354 1997
+" style="stroke:#000000;stroke-width:8;stroke-miterlimit:8;
+"/>
+<!-- Arrowhead on XXXpoint 7322 2125 - 7322 456-->
+<polyline points="7354 600
+7322 474
+7291 600
+" style="stroke:#000000;stroke-width:8;stroke-miterlimit:8;
+"/>
+<!-- Text -->
+<text xml:space="preserve" x="2598" y="3685" fill="#000000"  font-family="Times" font-style="normal" font-weight="normal" font-size="152" text-anchor="middle">Siehe \figurename~\ref{f:lena}</text>
+<!-- Text -->
+<text xml:space="preserve" x="4582" y="2834" fill="#000000"  font-family="Times" font-style="normal" font-weight="normal" font-size="152" text-anchor="middle">Hier eine Formel $x = \sin y$</text>
+<!-- Text -->
+<text xml:space="preserve" x="4582" y="3086" fill="#000000"  font-family="Times" font-style="normal" font-weight="normal" font-size="152" text-anchor="middle">material</text>
+<!-- Text -->
+<text xml:space="preserve" x="7795" y="1370" fill="#000000"  font-family="Times" font-style="normal" font-weight="normal" font-size="152" text-anchor="middle">height</text>
+</g>
+</svg>

@@ -1,0 +1,10 @@
+This technical report describes our work of the Data Modelling class 2017.
+The goal of this work is to implement a tool that supports the user to transform a relational schemed database (OLTP) into a dimensional model (OLAP).
+Based on an approach proposed by Moody %TODO ref
+a so called star schema will be produced out of an arbitrary database.
+
+The program guides the user via commandline interface through all the neccessary steps to find an agreement of which tables are selected as transaction entities, component entities and classification entities.
+
+% TODO eventually add Aggregation operator
+
+As soon as the selection phase is done, our software will generate a dimensional model based on the input scheme and populate it from the original data.

@@ -11,6 +11,8 @@ import md.beans.DimensionalModel;
 import md.beans.Table;
 import md.beans.TransactionSuggestion;
 import md.interaction.CliInteractor;
+import md.interaction.SaveAndLoad;
+import md.interaction.SaveAndLoad.LoadReturnValue;
 
 public class Hello {
 
@@ -19,7 +21,7 @@ public class Hello {
 	private static final String DB_NAME_MOODY = "moody";
 	private static final String CREDENTIAL_FILE_PATH = "src/main/java/md/credentials.txt";
 
-	public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) {
 		System.out.println("Hello World!");
 		Credentials credentials = new CredentialParser(new File(CREDENTIAL_FILE_PATH)).doMagic();
 		// createExampleDatabase(credentials);

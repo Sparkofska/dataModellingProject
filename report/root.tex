@@ -11,11 +11,15 @@
 \usepackage{colortbl}
 \usepackage{ragged2e}
 \usepackage{german}
-\selectlanguage{\german}
+%\selectlanguage{\german}
+\selectlanguage{\english}
 \usepackage{subfig}
 %\usepackage[acronym]{glossaries}
 
 %\usepackage{glossaries}
+
+%\usepackage{biblatex}
+%\{references.bib}
 
 %\newacronym{GNN}{GNN}{global nearest-neighbour}
 %\newacronym{RFS}{RFS}{Random Finite Sets}
@@ -48,8 +52,8 @@ Report about our work - data modelling
 }
 
 
-\author{Student A$^{1}$% <-this % stops a space
-Jonas Münch {\tt\small j.munch@campus.fct.unl.pt}
+\author{
+Jonas Munch {\tt\small j.munch@campus.fct.unl.pt} \\
 Dusan Zeliar {\tt\small d.zeliar@campus.fct.unl.pt}
 }
 
@@ -65,30 +69,30 @@ Dusan Zeliar {\tt\small d.zeliar@campus.fct.unl.pt}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
-\input{abstract.tex}
+\input{00abstract.tex}
 \end{abstract}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{INTRODUCTION}
+\section{Introduction}
 \label{sec:introduction}
 
-\input{introduction.tex}
+\input{01introduction.tex}
 
 \section{State of the Art}
 \label{sec:related_work}
 
-\input{sota.tex}
+\input{02sota.tex}
 
-\section{EXPERIMENTS}
+\section{Experiments}
 \label{sec:experiments}
 
-\input{experiments.tex}
+\input{03experiments.tex}
 
-\section{CONCLUSIONS}
+\section{Conclusion}
 \label{sec:conclusion}
 
-\input{conclusion.tex}
+\input{04conclusion.tex}
 
 \addtolength{\textheight}{0cm}   % This command serves to balance the column lengths
                                   % on the last page of the document manually. It shortens
@@ -106,11 +110,12 @@ Dusan Zeliar {\tt\small d.zeliar@campus.fct.unl.pt}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{ACKNOWLEDGMENT}
+\section*{Acknowledgment}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \bibliographystyle{plain}
-\bibliography{db-refs}
+\bibliography{references}
 
 \end{document}

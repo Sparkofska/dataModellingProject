@@ -4,12 +4,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import md.CredentialParser.Credentials;
-import md.beans.DimensionalModel;
-import md.beans.Table;
-import md.beans.TransactionSuggestion;
+import md.beans.*;
 import md.interaction.CliInteractor;
 import md.interaction.SaveAndLoad;
 import md.interaction.SaveAndLoad.LoadReturnValue;
@@ -24,7 +23,7 @@ public class Hello {
 	public static void main(String[] args) {
 		System.out.println("Hello World!");
 		Credentials credentials = new CredentialParser(new File(CREDENTIAL_FILE_PATH)).doMagic();
-		// createExampleDatabase(credentials);
+		//createExampleDatabase(credentials);
 		pipeline(credentials);
 		System.out.println("terminated.");
 	}
@@ -74,6 +73,21 @@ public class Hello {
 			
 			List<DimensionalModel> modelSuggestion = Suggestor.makeStarPeakSuggestion(tables, transactionsFixed);
 			List<DimensionalModel> modelFixed = cli.letUserConfirm(modelSuggestion);
+			DimensionalModel testDim = modelSuggestion.get(1);
+			System.out.print("clss tables: " + testDim.getClassificationTables().size());
+			System.out.print("COMPONENT tables: " + testDim.getComponentTables().size());
+			List<Table> testTables = new ArrayList<>();
+			List<Table> testtt = new ArrayList<>();
+
+			for (Table tab: testDim.getComponentTables()){
+				HierarchyTable classTab = new HierarchyTable(tab);
+				classTab.createReferencedTableList(testDim.getClassificationTables());
+				System.out.print("\n");
+				classTab.createSqlScripts();
+				classTab.printSqlScripts();
+
+				createAndMigrateCollapsedTable(credentials,classTab);
+			}
 
 			// 8. convert database
 			// TODO Dusan's part
@@ -83,6 +97,21 @@ public class Hello {
 		} catch (RuntimeException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void createAndMigrateCollapsedTable(Credentials credentials, HierarchyTable tab) {
+		DatabaseCreator dbc;
+		try {
+			dbc = new DatabaseCreator(DB_URL, credentials.username, credentials.password);
+			dbc.collapseAndMigrate(tab, DB_NAME_MOODY);
+			//dbc.executeQuery(coltab.getCreateQuery(), DB_NAME_MOODY);
+			//dbc.executeQuery(coltab.getSelectQuery(), DB_NAME_MOODY);
+			//dbc.executeSelectQuery(tab.getSqlSelect(), tab, DB_NAME_MOODY);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (RuntimeException e) {
 			e.printStackTrace();
 		}
 	}

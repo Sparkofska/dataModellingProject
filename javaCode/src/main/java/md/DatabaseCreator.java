@@ -1,11 +1,16 @@
 package md;
 
+import md.beans.CollapsedTable;
+import md.beans.HierarchyTable;
+import md.beans.Table;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -25,6 +30,79 @@ public class DatabaseCreator extends DatabaseAccessor {
 		createExampleData(dbName);
 		close();
 	}
+
+	public void collapseAndMigrate(HierarchyTable table, final String dbName)throws SQLException{
+		connect();
+		checkConnected();
+
+		Statement stmt = this.connection.createStatement();
+		Statement insertStmt = this.connection.createStatement();
+
+		String use = "USE " + dbName;
+		stmt.execute(use);
+		insertStmt.execute(use);
+		stmt.execute(table.getSqlCreate());
+		ResultSet rs = stmt.executeQuery(table.getSqlSelect());
+
+		ResultSetMetaData rsmd = rs.getMetaData();
+		int colNumber = rsmd.getColumnCount();
+		while (rs.next()){
+			String insertValues="";
+			for (int i = 1; i<=colNumber; i++){
+				if (!insertValues.equals("")) insertValues+=", ";
+				insertValues+="\"" + rs.getString(i) + "\"";
+			}
+			String insertQuery = table.getSqlInsert() + " VALUES(" + insertValues +");";
+			insertStmt.execute(insertQuery);
+		}
+
+		close();
+	}
+
+	public void executeQuery(final String query, final String dbName) throws SQLException{
+		connect();
+		checkConnected();
+		Statement stmt = this.connection.createStatement();
+		String use = "USE " + dbName;
+		stmt.execute(use);
+		stmt.execute(query);
+		close();
+
+	}
+
+	/*public void executeSelectQuery(final String query, HierarchyTable targetTable, final String dbName) throws SQLException{
+		connect();
+		checkConnected();
+		Statement stmt = this.connection.createStatement();
+		Statement insertStmt = this.connection.createStatement();
+		String use = "USE " + dbName;
+		System.out.print("Executing\n");
+		stmt.execute(use);
+		insertStmt.execute(use);
+		ResultSet rs = stmt.executeQuery(query);
+		ResultSetMetaData rsmd = rs.getMetaData();
+		System.out.print("*********DONE*****\n");
+		int colNumber = rsmd.getColumnCount();
+		System.out.print(colNumber+"\n");
+		while (rs.next()){
+			String insertValues="";
+			System.out.print("*********iiii*****\n");
+		    for (int i = 1; i<=colNumber; i++){
+		    	if ( i>1) System.out.print(", ");
+		    	System.out.print(rs.getString(i) + " " + rsmd.getColumnName(i));
+		    	if (!insertValues.equals("")) insertValues+=", ";
+		    	insertValues+="\"" + rs.getString(i) + "\"";
+			}
+			System.out.print("\n");
+			String insertQuery = "INSERT INTO " + targetTable.getCollapsedTable().getName() + " VALUES(" + insertValues +");";
+			System.out.print("Executing insert \n");
+			System.out.print(insertQuery + "\n");
+			insertStmt.execute(insertQuery);
+		}
+
+		close();
+
+	}*/
 
 	public void createTestDatabaseMoody(final String dbName) throws SQLException, FileNotFoundException, IOException {
 		connect();

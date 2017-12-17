@@ -166,8 +166,5 @@ public class AggTable {
         this.createInsert();
         this.createSelect();
         this.createCreate();
-        System.out.print(this.selectQuery);
-        System.out.print(this.createQuery);
-        System.out.print(this.insertQuery);
     }
 }

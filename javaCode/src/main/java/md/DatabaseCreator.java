@@ -9,10 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +50,12 @@ public class DatabaseCreator extends DatabaseAccessor {
 				insertValues+="\"" + rs.getString(i) + "\"";
 			}
 			String insertQuery = table.getSqlInsert() + " VALUES(" + insertValues +");";
-			insertStmt.execute(insertQuery);
+			try {
+				insertStmt.execute(insertQuery);
+			}
+			catch (SQLIntegrityConstraintViolationException e){
+				continue;
+			}
 		}
 
 		close();

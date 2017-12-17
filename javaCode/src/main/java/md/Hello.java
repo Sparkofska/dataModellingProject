@@ -75,11 +75,14 @@ public class Hello {
 			
 			List<DimensionalModel> modelSuggestion = Suggestor.makeStarPeakSuggestion(tables, transactionsFixed);
 			List<DimensionalModel> modelFixed = cli.letUserConfirm(modelSuggestion);
+
 			DimensionalModel testDim = modelSuggestion.get(1);
 			System.out.print("clss tables: " + testDim.getClassificationTables().size());
 			System.out.print("COMPONENT tables: " + testDim.getComponentTables().size());
-			List<Table> testTables = new ArrayList<>();
-			List<Table> testtt = new ArrayList<>();
+			
+			List<AggTableEdit> aggtables = cli.letUserChooseAggregation(modelFixed);
+			// TODO make AggTable
+			
 
 			for (Table tab: testDim.getComponentTables()){
 				if (tab.getName().equals("Sale")){

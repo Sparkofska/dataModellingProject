@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import md.beans.AggTable;
 import md.beans.Column;
 import md.beans.DimensionalModel;
 import md.beans.Table;
@@ -136,6 +137,27 @@ public class Presenter {
 			out.write("UNCLASSIFIED TABLES:\n".getBytes());
 			i = 1;
 			for (Table t : suggestion.getUnclassified()) {
+				out.write((i + ". " + t.getName() + "\n").getBytes());
+				i++;
+			}
+			out.flush();
+		} catch (IOException e) {
+			handleException(e);
+		}
+	}
+
+	public void present(AggTableEdit aggTab) {
+		try {
+			out.write("AGGREGATION KEYS:\n".getBytes());
+			int i = 1;
+			for (Column t : aggTab.getAggKeys()) {
+				out.write((i + ". " + t.getName() + " : " + aggTab.getAggFormulas().get(i - 1) + "\n").getBytes());
+				i++;
+			}
+
+			out.write("UNCLASSIFIED COLUMNS:\n".getBytes());
+			i = 1;
+			for (Column t : aggTab.getUnclassified()) {
 				out.write((i + ". " + t.getName() + "\n").getBytes());
 				i++;
 			}

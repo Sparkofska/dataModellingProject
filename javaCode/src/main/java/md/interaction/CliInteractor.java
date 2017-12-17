@@ -7,7 +7,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import md.AggTableEdit;
 import md.Presenter;
+import md.beans.AggTable;
 import md.beans.DimensionalModel;
 import md.beans.TransactionSuggestion;
 
@@ -169,6 +171,112 @@ public class CliInteractor {
 									+ ioe.getMessage() + ")");
 						}
 						break;
+
+					case "undo":
+						command = history.undo();
+						break;
+
+					case "help":
+						promptHelp(true);
+						break;
+
+					default:
+						throw new WrongUserInputException("Wrong input: " + line);
+					}
+				} catch (WrongUserInputException e) {
+					presenter.present(e.getMessage());
+				}
+			}
+		}
+
+		return edits;
+	}
+
+	public List<AggTableEdit> letUserChooseAggregation(List<DimensionalModel> modelFixed) throws IOException {
+
+		List<AggTableEdit> edits = new ArrayList<>(modelFixed.size());
+		int i = 0;
+		for (DimensionalModel rename : modelFixed) {
+
+			AggTableEdit edit = new AggTableEdit(rename.getTransactionTables().get(0)); // TODO
+																						// check
+																						// if
+																						// there
+																						// is
+																						// always
+																						// only
+																						// one
+																						// transaction
+																						// table
+			edits.add(edit);
+
+			History history = new History();
+			presenter.present("");
+			presenter.present("For every selected transaction table an aggregation can be specified!");
+			presenter.present(modelFixed, i++); // TODO check if this is really
+												// what we want
+
+			boolean confirmed = false;
+			while (!confirmed) {
+				try {
+					presenter.present("");
+					presenter.present(edit);
+
+					promptHelp(false);
+
+					String line = input.readLine();
+					String[] lineParts = line.split(" ");
+					Command command = null;
+
+					switch (lineParts[0]) {
+					case "set":
+						if (lineParts.length < 3 || lineParts.length > 4)
+							throw new WrongUserInputException(
+									"Wrong input for set. use it this way: set <columnName> <aggregation, unclassified> <aggregationFormula>");
+						switch (lineParts[2]) {
+						case "aggregation":
+							if (lineParts.length != 4)
+								throw new WrongUserInputException(
+										"Wrong input for aggregation. use it this way: set <columnName> aggregation <aggregationFormula>. aggregationFormula must not contain whitespace.");
+							command = new AddAggregation(edit, lineParts[1], lineParts[3]);
+							break;
+
+						case "unclassified":
+							if (lineParts.length != 3)
+								throw new WrongUserInputException(
+										"Wrong input for unclassified. use it this way: set <columnName> unclassified");
+							command = new RemoveAggregation(edit, lineParts[1]);
+							break;
+
+						default:
+							throw new WrongUserInputException(
+									"Wrong input for set: can only be 'aggregation' or 'unclassified' but was "
+											+ lineParts[2]);
+						}
+						try {
+							history.addStep(command);
+						} catch (IllegalArgumentException e) {
+							throw new WrongUserInputException(
+									"Wrong input: the table " + lineParts[1] + " does not exist.", e);
+						}
+						break;
+
+					case "fix":
+						confirmed = true;
+						break;
+					case "save":
+						if (lineParts.length != 2)
+							throw new WrongUserInputException("Wrong input for save. Use it this way: save <filename>");
+						// try {
+						// TODO save
+						throw new UnsupportedOperationException("TODO");
+						// SaveAndLoad.save(lineParts[1], edits);
+						// } catch (IOException ioe) {
+						// presenter.present("SAVE not possible due to " +
+						// ioe.getClass().getName() + " ("
+						// + ioe.getMessage() + ")");
+						// }
+						// break;
 
 					case "undo":
 						command = history.undo();

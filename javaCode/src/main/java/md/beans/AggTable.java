@@ -24,6 +24,24 @@ public class AggTable {
 		this.table = table;
 	}
 
+	public List<String> getAggFormula() {
+		if(this.aggFormula == null)
+			this.aggFormula = new ArrayList<>();
+		return aggFormula;
+	}
+
+	public List<String> getAggFormulaResultType() {
+		if(this.aggFormulaResultType == null)
+			this.aggFormulaResultType = new ArrayList<>();
+		return aggFormulaResultType;
+	}
+
+	public List<Column> getGroupingAttributes() {
+		if(this.groupingAttributes == null)
+			this.groupingAttributes = new  ArrayList<>();
+		return groupingAttributes;
+	}
+
 	public void setAggFormulaColumnNames(List<String> aggFormulaColumnNames) {
 		this.aggFormulaColumnNames = aggFormulaColumnNames;
 	}

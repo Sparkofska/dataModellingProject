@@ -128,7 +128,6 @@ public class AggTable {
             tabName=tabName.replaceAll("\\%", "");
             tabName=tabName.replaceAll(" +", "_");
             formColNames.add(tabName);
-            System.out.print("\n---colname: " + tabName + "\n");
         }
         this.aggFormulaColumnNames=formColNames;
     }
@@ -154,6 +153,12 @@ public class AggTable {
 
             }
         }
+    }
+
+    public void printQueries(){
+        System.out.print("*****SELECT QUERY*******\n" + this.selectQuery + "\n");
+        System.out.print("*****CREATE QUERY*******\n" + this.createQuery + "\n");
+        System.out.print("*****INSERT QUERY*******\n" + this.insertQuery + "\n");
     }
 
     public AggTable(Table tab, List<String> aggFormula, List<Column> groupingAttributes){

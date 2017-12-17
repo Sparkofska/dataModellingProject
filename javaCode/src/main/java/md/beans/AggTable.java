@@ -110,7 +110,7 @@ public class AggTable implements TableSQLCreator{
     }
 
     public void createInsert(){
-        this.insertQuery="INSERT INTO "+this.getTable().getName() +"_agg ("+ this.getNewTableHeader();
+        this.insertQuery="INSERT INTO "+this.getTable().getName() +"_agg ("+ this.getNewTableHeader() + ")";
     }
 
     private void createGroupingColumnsNames(List<String> aggFormula){

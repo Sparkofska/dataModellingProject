@@ -24,7 +24,7 @@ public class TransTable implements TableSQLCreator{
             head+=col.getName() + " ";
         }
         this.selectQuery="SELECT " + head + "\nfrom " + this.getTable().getName() + ";\n";
-        this.insertQuery="INSERT INTO "+this.getTable().getName() + " VALUES (\n" ;
+        this.insertQuery="INSERT INTO "+this.getTable().getName() + ") " ;
 
         head="";
         for (Column col: this.table.getCols()){

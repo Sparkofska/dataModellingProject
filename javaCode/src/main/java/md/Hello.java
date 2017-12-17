@@ -12,7 +12,6 @@ import java.util.List;
 import md.CredentialParser.Credentials;
 import md.beans.*;
 import md.interaction.CliInteractor;
-import md.interaction.CliInteractor.AggregationDecision;
 import md.interaction.SaveAndLoad;
 import md.interaction.SaveAndLoad.LoadReturnValue;
 
@@ -21,6 +20,7 @@ public class Hello {
 	protected static final String DB_URL = "jdbc:mysql://localhost/";
 	protected static final String DB_NAME = "testdb";
 	private static final String DB_NAME_MOODY = "moody";
+	private static final String DB_NAME_TARGET = "target";
 	private static final String CREDENTIAL_FILE_PATH = "src/main/java/md/credentials.txt";
 
 	public static void main(String[] args) {
@@ -88,14 +88,34 @@ public class Hello {
 			}
 
 			DimensionalModel testDim = modelSuggestion.get(1);
-			for (Table tab : testDim.getComponentTables()) {
+			System.out.print("clss tables: " + testDim.getClassificationTables().size());
+			System.out.print("COMPONENT tables: " + testDim.getComponentTables().size());
+			List<Table> testTables = new ArrayList<>();
+			List<Table> testtt = new ArrayList<>();
+
+			for (Table tab: testDim.getComponentTables()){
+				if (tab.getName().equals("Sale")){
+					List<String> aggForm = Arrays.asList("avg(Discount_Amt)", "avg(Discount_Amt - / % * + Sale_Id)");
+					List<Column> groputAtt = new ArrayList<>() ;
+					for (Column col: tab.getCols()){
+						if (col.getName().equals("Loc_Id") || col.getName().equals("Sale_Date"))
+							groputAtt.add(col);
+					}
+					AggTable aggTable= new AggTable(tab, aggForm, groputAtt);
+					TransTable transTable=new TransTable(tab);
+					transTable.printQueries();
+				}
+
+            }
+
+			for (Table tab: testDim.getComponentTables()){
 				HierarchyTable classTab = new HierarchyTable(tab);
 				classTab.createReferencedTableList(testDim.getClassificationTables());
 				System.out.print("\n");
 				classTab.createSqlScripts();
 				classTab.printSqlScripts();
 
-				createAndMigrateCollapsedTable(credentials, classTab);
+				createAndMigrateCollapsedTable(credentials,classTab);
 			}
 
 			// 8. convert database
@@ -110,14 +130,11 @@ public class Hello {
 		}
 	}
 
-	private static void createAndMigrateCollapsedTable(Credentials credentials, HierarchyTable tab) {
+	private static void createAndMigrateTable(Credentials credentials,String select, String insert, String create) {
 		DatabaseCreator dbc;
 		try {
 			dbc = new DatabaseCreator(DB_URL, credentials.username, credentials.password);
-			dbc.collapseAndMigrate(tab, DB_NAME_MOODY);
-			// dbc.executeQuery(coltab.getCreateQuery(), DB_NAME_MOODY);
-			// dbc.executeQuery(coltab.getSelectQuery(), DB_NAME_MOODY);
-			// dbc.executeSelectQuery(tab.getSqlSelect(), tab, DB_NAME_MOODY);
+			dbc.migrate(select, insert, create, DB_NAME_MOODY, DB_NAME_TARGET);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (RuntimeException e) {

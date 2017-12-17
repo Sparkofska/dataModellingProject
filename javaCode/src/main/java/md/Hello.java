@@ -26,7 +26,7 @@ public class Hello {
 	public static void main(String[] args) {
 		System.out.println("Hello World!");
 		Credentials credentials = new CredentialParser(new File(CREDENTIAL_FILE_PATH)).doMagic();
-		//createExampleDatabase(credentials);
+		// createExampleDatabase(credentials);
 		pipeline(credentials);
 		System.out.println("terminated.");
 	}
@@ -62,20 +62,30 @@ public class Hello {
 					.getMetadata(DB_NAME_MOODY);
 
 			// 2. present meta data to user
-//			presenter.presentMetadata(tables);
+			// presenter.presentMetadata(tables);
 
 			// 3. think of suggestions for conversion
-			 TransactionSuggestion transactionSuggestion = Suggestor.makeTransactionSuggestion(tables);
+			TransactionSuggestion transactionSuggestion = Suggestor.makeTransactionSuggestion(tables);
 
 			// 4. present suggestions to user
 			// 5. Let user edit suggestions
 			// 6. [Breakpoint at each step of editing]
-			 // 7. Let user confirm
+			// 7. Let user confirm
 			CliInteractor cli = new CliInteractor(presenter, System.in);
 			TransactionSuggestion transactionsFixed = cli.letUserConfirm(transactionSuggestion);
-			
+
 			List<DimensionalModel> modelSuggestion = Suggestor.makeStarPeakSuggestion(tables, transactionsFixed);
 			List<DimensionalModel> modelFixed = cli.letUserConfirm(modelSuggestion);
+
+			AggregationDecision aggDecision = cli.letUserChooseAggregation(modelFixed);
+			List<AggTable> aggTables = new ArrayList<>(aggDecision.aggregations.size());
+			for (AggTableEdit aggEdit : aggDecision.aggregations) {
+				aggTables.add(new AggTable(aggEdit.getTable(), aggEdit.getAggFormulas(), aggEdit.getAggKeys()));
+				// TODO make and run scripts for aggTables
+			}
+			for (DimensionalModel keep : aggDecision.keep) {
+				// TODO create transactiontable without aggregation
+			}
 
 			DimensionalModel testDim = modelSuggestion.get(1);
 			System.out.print("clss tables: " + testDim.getClassificationTables().size());
@@ -91,12 +101,8 @@ public class Hello {
 						if (col.getName().equals("Loc_Id") || col.getName().equals("Sale_Date"))
 							groputAtt.add(col);
 					}
-
 					AggTable aggTable= new AggTable(tab, aggForm, groputAtt);
-					System.out.print("trans table\n");
-					aggTable.printQueries();
 					TransTable transTable=new TransTable(tab);
-					System.out.print("trans table\n");
 					transTable.printQueries();
 				}
 
@@ -109,7 +115,7 @@ public class Hello {
 				classTab.createSqlScripts();
 				classTab.printSqlScripts();
 
-				createAndMigrateTable(credentials,classTab.getSqlSelect(), classTab.getSqlInsert(),classTab.getSqlCreate());
+				createAndMigrateCollapsedTable(credentials,classTab);
 			}
 
 			// 8. convert database

@@ -144,4 +144,25 @@ public class Presenter {
 			handleException(e);
 		}
 	}
+
+	public void present(AggTableEdit aggTab) {
+		try {
+			out.write("AGGREGATION KEYS:\n".getBytes());
+			int i = 1;
+			for (Column t : aggTab.getAggKeys()) {
+				out.write((i + ". " + t.getName() + " : " + aggTab.getAggFormulas().get(i - 1) + "\n").getBytes());
+				i++;
+			}
+
+			out.write("UNCLASSIFIED COLUMNS:\n".getBytes());
+			i = 1;
+			for (Column t : aggTab.getUnclassified()) {
+				out.write((i + ". " + t.getName() + "\n").getBytes());
+				i++;
+			}
+			out.flush();
+		} catch (IOException e) {
+			handleException(e);
+		}
+	}
 }

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import md.AggTableEdit;
 import md.Presenter;
 import md.beans.DimensionalModel;
 import md.beans.TransactionSuggestion;
@@ -188,6 +189,133 @@ public class CliInteractor {
 		}
 
 		return edits;
+	}
+
+	private AggTableEdit letUserChooseAggregation(DimensionalModel model) throws IOException {
+
+		AggTableEdit edit = new AggTableEdit(model.getTransactionTables().get(0));
+		History history = new History();
+		boolean confirmed = false;
+		while (!confirmed) {
+			try {
+				presenter.present("");
+				presenter.present(edit);
+
+				promptHelp(false);
+
+				String line = input.readLine();
+				String[] lineParts = line.split(" ");
+				Command command = null;
+
+				switch (lineParts[0]) {
+				case "set":
+					if (lineParts.length < 3 || lineParts.length > 4)
+						throw new WrongUserInputException(
+								"Wrong input for set. use it this way: set <columnName> <aggregation, unclassified> <aggregationFormula>");
+					switch (lineParts[2]) {
+					case "aggregation":
+						if (lineParts.length != 4)
+							throw new WrongUserInputException(
+									"Wrong input for aggregation. use it this way: set <columnName> aggregation <aggregationFormula>. aggregationFormula must not contain whitespace.");
+						command = new AddAggregation(edit, lineParts[1], lineParts[3]);
+						break;
+
+					case "unclassified":
+						if (lineParts.length != 3)
+							throw new WrongUserInputException(
+									"Wrong input for unclassified. use it this way: set <columnName> unclassified");
+						command = new RemoveAggregation(edit, lineParts[1]);
+						break;
+
+					default:
+						throw new WrongUserInputException(
+								"Wrong input for set: can only be 'aggregation' or 'unclassified' but was "
+										+ lineParts[2]);
+					}
+					try {
+						history.addStep(command);
+					} catch (IllegalArgumentException e) {
+						throw new WrongUserInputException("Wrong input: the table " + lineParts[1] + " does not exist.",
+								e);
+					}
+					break;
+
+				case "fix":
+					confirmed = true;
+					break;
+				case "save":
+					if (lineParts.length != 2)
+						throw new WrongUserInputException("Wrong input for save. Use it this way: save <filename>");
+					// try {
+					// TODO save
+					throw new UnsupportedOperationException("TODO");
+					// SaveAndLoad.save(lineParts[1], edits);
+					// } catch (IOException ioe) {
+					// presenter.present("SAVE not possible due to " +
+					// ioe.getClass().getName() + " ("
+					// + ioe.getMessage() + ")");
+					// }
+					// break;
+
+				case "undo":
+					command = history.undo();
+					break;
+
+				case "help":
+					promptHelp(true);
+					break;
+
+				default:
+					throw new WrongUserInputException("Wrong input: " + line);
+				}
+			} catch (WrongUserInputException e) {
+				presenter.present(e.getMessage());
+			}
+		}
+		return edit;
+	}
+
+	public AggregationDecision letUserChooseAggregation(List<DimensionalModel> models) throws IOException {
+		AggregationDecision ret = new AggregationDecision();
+
+		int i = 0;
+		for (DimensionalModel model : models) {
+			presenter.present("");
+			presenter.present("For every selected transaction table an aggregation can be specified!");
+			presenter.present(models, i++);
+			presenter.present(
+					"Do you want to aggregate this table '" + model.getTransactionTables().get(0).getName() + "'? Possible actions: yes, no");
+			try {
+				String line = input.readLine();
+				switch (line.toLowerCase()) {
+				case "yes":
+				case "y":
+					AggTableEdit edit = letUserChooseAggregation(model);
+					ret.aggregations.add(edit);
+					break;
+				case "no":
+				case "n":
+					ret.keep.add(model);
+					break;
+				default:
+					throw new WrongUserInputException("Wrong input: can only be 'yes' or 'no' but was " + line);
+				}
+			} catch (WrongUserInputException e) {
+				presenter.present(e.getMessage());
+			}
+		}
+
+		return ret;
+	}
+
+	public class AggregationDecision {
+		public List<AggTableEdit> aggregations;
+		public List<DimensionalModel> keep;
+
+		public AggregationDecision() {
+			this.aggregations = new ArrayList<>();
+			this.keep = new ArrayList<>();
+		}
 	}
 
 	private void promptHelp(boolean extendedVersion) {

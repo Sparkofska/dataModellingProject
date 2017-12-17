@@ -19,6 +19,8 @@ public class CredentialParser {
 				FileWriter writer = new FileWriter(this.credentialFile);
 				writer.write("username=" + System.lineSeparator());
 				writer.write("password=");
+				writer.flush();
+				writer.close();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -35,7 +37,7 @@ public class CredentialParser {
 				else if (line.startsWith("password="))
 					c.password = line.substring(9);
 			}
-			if (c.username == null || c.password == null)
+			if (c.username == null || c.password == null || c.username.isEmpty() || c.password.isEmpty())
 				throw new RuntimeException(
 						"CredentialFile illformatted. Must have the following format:\nusername=yourname\npassword=yourpass");
 			return c;

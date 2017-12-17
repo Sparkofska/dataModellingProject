@@ -90,6 +90,8 @@ public class Hello {
 							groputAtt.add(col);
 					}
 					AggTable aggTable= new AggTable(tab, aggForm, groputAtt);
+					TransTable transTable=new TransTable(tab);
+					transTable.printQueries();
 				}
 
             }

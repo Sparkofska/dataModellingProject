@@ -12,6 +12,7 @@ import java.util.List;
 import md.CredentialParser.Credentials;
 import md.beans.*;
 import md.interaction.CliInteractor;
+import md.interaction.CliInteractor.AggregationDecision;
 import md.interaction.SaveAndLoad;
 import md.interaction.SaveAndLoad.LoadReturnValue;
 
@@ -77,49 +78,21 @@ public class Hello {
 			List<DimensionalModel> modelSuggestion = Suggestor.makeStarPeakSuggestion(tables, transactionsFixed);
 			List<DimensionalModel> modelFixed = cli.letUserConfirm(modelSuggestion);
 
-			AggregationDecision aggDecision = cli.letUserChooseAggregation(modelFixed);
-			List<AggTable> aggTables = new ArrayList<>(aggDecision.aggregations.size());
-			for (AggTableEdit aggEdit : aggDecision.aggregations) {
-				aggTables.add(new AggTable(aggEdit.getTable(), aggEdit.getAggFormulas(), aggEdit.getAggKeys()));
-				// TODO make and run scripts for aggTables
-			}
-			for (DimensionalModel keep : aggDecision.keep) {
-				// TODO create transactiontable without aggregation
-			}
-
-			DimensionalModel testDim = modelSuggestion.get(1);
-			System.out.print("clss tables: " + testDim.getClassificationTables().size());
-			System.out.print("COMPONENT tables: " + testDim.getComponentTables().size());
-			List<Table> testTables = new ArrayList<>();
-			List<Table> testtt = new ArrayList<>();
-
-			for (Table tab: testDim.getComponentTables()){
-				if (tab.getName().equals("Sale")){
-					List<String> aggForm = Arrays.asList("avg(Discount_Amt)", "avg(Discount_Amt - / % * + Sale_Id)");
-					List<Column> groputAtt = new ArrayList<>() ;
-					for (Column col: tab.getCols()){
-						if (col.getName().equals("Loc_Id") || col.getName().equals("Sale_Date"))
-							groputAtt.add(col);
-					}
-					AggTable aggTable= new AggTable(tab, aggForm, groputAtt);
-					TransTable transTable=new TransTable(tab);
-					transTable.printQueries();
-				}
-
-            }
-
-			for (Table tab: testDim.getComponentTables()){
-				HierarchyTable classTab = new HierarchyTable(tab);
-				classTab.createReferencedTableList(testDim.getClassificationTables());
-				System.out.print("\n");
-				classTab.createSqlScripts();
-				classTab.printSqlScripts();
-
-				createAndMigrateCollapsedTable(credentials,classTab);
-			}
-
 			// 8. convert database
-			// TODO Dusan's part
+			List<TableSQLCreator> createTables = cli.letUserChooseAggregation(modelFixed);
+			for (TableSQLCreator transTable : createTables) {
+				createAndMigrateTable(credentials, transTable.getSelectQuery(), transTable.getInsertQuery(),
+						transTable.getCreateQuery());
+			}
+			
+			for(DimensionalModel dimModel:modelFixed){
+				for(Table compTable : dimModel.getComponentTables()) {
+					HierarchyTable hirTable = new HierarchyTable(compTable);
+					hirTable.createReferencedTableList(dimModel.getClassificationTables());
+					hirTable.createSqlScripts();
+					createAndMigrateTable(credentials, hirTable.getSqlSelect(), hirTable.getSqlInsert(), hirTable.getSqlCreate());
+				}
+			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -130,7 +103,7 @@ public class Hello {
 		}
 	}
 
-	private static void createAndMigrateTable(Credentials credentials,String select, String insert, String create) {
+	private static void createAndMigrateTable(Credentials credentials, String select, String insert, String create) {
 		DatabaseCreator dbc;
 		try {
 			dbc = new DatabaseCreator(DB_URL, credentials.username, credentials.password);

@@ -9,7 +9,11 @@ import java.util.List;
 
 import md.AggTableEdit;
 import md.Presenter;
+import md.beans.AggTable;
 import md.beans.DimensionalModel;
+import md.beans.Table;
+import md.beans.TableSQLCreator;
+import md.beans.TransTable;
 import md.beans.TransactionSuggestion;
 
 public class CliInteractor {
@@ -275,8 +279,8 @@ public class CliInteractor {
 		return edit;
 	}
 
-	public AggregationDecision letUserChooseAggregation(List<DimensionalModel> models) throws IOException {
-		AggregationDecision ret = new AggregationDecision();
+	public List<TableSQLCreator> letUserChooseAggregation(List<DimensionalModel> models) throws IOException {
+		List<TableSQLCreator> ret = new ArrayList<>();
 
 		int i = 0;
 		for (DimensionalModel model : models) {
@@ -286,16 +290,17 @@ public class CliInteractor {
 			presenter.present(
 					"Do you want to aggregate this table '" + model.getTransactionTables().get(0).getName() + "'? Possible actions: yes, no");
 			try {
+				Table transTable = model.getTransactionTables().get(0); 
 				String line = input.readLine();
 				switch (line.toLowerCase()) {
 				case "yes":
 				case "y":
 					AggTableEdit edit = letUserChooseAggregation(model);
-					ret.aggregations.add(edit);
+					ret.add(new AggTable(transTable, edit.getAggFormulas(), edit.getAggKeys()));
 					break;
 				case "no":
 				case "n":
-					ret.keep.add(model);
+					ret.add(new TransTable(transTable));
 					break;
 				default:
 					throw new WrongUserInputException("Wrong input: can only be 'yes' or 'no' but was " + line);

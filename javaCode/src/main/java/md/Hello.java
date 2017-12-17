@@ -12,6 +12,7 @@ import java.util.List;
 import md.CredentialParser.Credentials;
 import md.beans.*;
 import md.interaction.CliInteractor;
+import md.interaction.CliInteractor.AggregationDecision;
 import md.interaction.SaveAndLoad;
 import md.interaction.SaveAndLoad.LoadReturnValue;
 
@@ -25,7 +26,7 @@ public class Hello {
 	public static void main(String[] args) {
 		System.out.println("Hello World!");
 		Credentials credentials = new CredentialParser(new File(CREDENTIAL_FILE_PATH)).doMagic();
-		//createExampleDatabase(credentials);
+		// createExampleDatabase(credentials);
 		pipeline(credentials);
 		System.out.println("terminated.");
 	}
@@ -61,40 +62,40 @@ public class Hello {
 					.getMetadata(DB_NAME_MOODY);
 
 			// 2. present meta data to user
-//			presenter.presentMetadata(tables);
+			// presenter.presentMetadata(tables);
 
 			// 3. think of suggestions for conversion
-			 TransactionSuggestion transactionSuggestion = Suggestor.makeTransactionSuggestion(tables);
+			TransactionSuggestion transactionSuggestion = Suggestor.makeTransactionSuggestion(tables);
 
 			// 4. present suggestions to user
 			// 5. Let user edit suggestions
 			// 6. [Breakpoint at each step of editing]
-			 // 7. Let user confirm
+			// 7. Let user confirm
 			CliInteractor cli = new CliInteractor(presenter, System.in);
 			TransactionSuggestion transactionsFixed = cli.letUserConfirm(transactionSuggestion);
-			
+
 			List<DimensionalModel> modelSuggestion = Suggestor.makeStarPeakSuggestion(tables, transactionsFixed);
 			List<DimensionalModel> modelFixed = cli.letUserConfirm(modelSuggestion);
-			
-			for(DimensionalModel dim:modelFixed)
-				System.out.println("Ntransaction: " + dim.getTransactionTables().size());
-			
-			List<AggTableEdit> aggEdits = cli.letUserChooseAggregation(modelFixed);
-			List<AggTable> aggTables = new ArrayList<>(aggEdits.size());
-			for(AggTableEdit aggEdit : aggEdits)
+
+			AggregationDecision aggDecision = cli.letUserChooseAggregation(modelFixed);
+			List<AggTable> aggTables = new ArrayList<>(aggDecision.aggregations.size());
+			for (AggTableEdit aggEdit : aggDecision.aggregations) {
 				aggTables.add(new AggTable(aggEdit.getTable(), aggEdit.getAggFormulas(), aggEdit.getAggKeys()));
-			
-			//TODO make and run scripts for aggTables
+				// TODO make and run scripts for aggTables
+			}
+			for (DimensionalModel keep : aggDecision.keep) {
+				// TODO create transactiontable without aggregation
+			}
 
 			DimensionalModel testDim = modelSuggestion.get(1);
-			for (Table tab: testDim.getComponentTables()){
+			for (Table tab : testDim.getComponentTables()) {
 				HierarchyTable classTab = new HierarchyTable(tab);
 				classTab.createReferencedTableList(testDim.getClassificationTables());
 				System.out.print("\n");
 				classTab.createSqlScripts();
 				classTab.printSqlScripts();
 
-				createAndMigrateCollapsedTable(credentials,classTab);
+				createAndMigrateCollapsedTable(credentials, classTab);
 			}
 
 			// 8. convert database
@@ -114,9 +115,9 @@ public class Hello {
 		try {
 			dbc = new DatabaseCreator(DB_URL, credentials.username, credentials.password);
 			dbc.collapseAndMigrate(tab, DB_NAME_MOODY);
-			//dbc.executeQuery(coltab.getCreateQuery(), DB_NAME_MOODY);
-			//dbc.executeQuery(coltab.getSelectQuery(), DB_NAME_MOODY);
-			//dbc.executeSelectQuery(tab.getSqlSelect(), tab, DB_NAME_MOODY);
+			// dbc.executeQuery(coltab.getCreateQuery(), DB_NAME_MOODY);
+			// dbc.executeQuery(coltab.getSelectQuery(), DB_NAME_MOODY);
+			// dbc.executeSelectQuery(tab.getSqlSelect(), tab, DB_NAME_MOODY);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (RuntimeException e) {

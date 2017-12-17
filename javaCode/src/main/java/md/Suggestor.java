@@ -71,15 +71,9 @@ public class Suggestor {
 			Collection<Table> reachable = getReachableTables(oltp, trans);
 
 			// find direct neighbours of transactions
-			// if neighbour is leaf, add to Classification
-			// else add to component
 			Collection<Table> componentCandidates = getReferencedTables(reachable, trans);
 			for (Table cand : componentCandidates) {
-				if (cand.getnImportedKeys() == 0) {
-					model.addClassificationTable(cand);
-				} else {
-					model.addComponentTable(cand);
-				}
+				model.addComponentTable(cand);
 			}
 
 			// rest is Classification

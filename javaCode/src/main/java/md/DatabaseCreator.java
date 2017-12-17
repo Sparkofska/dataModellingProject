@@ -28,19 +28,19 @@ public class DatabaseCreator extends DatabaseAccessor {
 		close();
 	}
 
-	public void collapseAndMigrate(HierarchyTable table, final String dbName)throws SQLException{
+	public void migrate(String select, String insert, String create, final String sourceDbName, final String targetDbName)throws SQLException{
 		connect();
 		checkConnected();
 
-		Statement stmt = this.connection.createStatement();
-		Statement insertStmt = this.connection.createStatement();
+		Statement sourceStmt = this.connection.createStatement();
+		Statement targetStmt = this.connection.createStatement();
 
-		String use = "USE " + dbName;
-		stmt.execute(use);
-		insertStmt.execute(use);
-		stmt.execute(table.getSqlCreate());
-		ResultSet rs = stmt.executeQuery(table.getSqlSelect());
+		sourceStmt.execute("USE " + sourceDbName);
+		targetStmt.execute("USE " + targetDbName);
 
+		targetStmt.execute(create);
+
+		ResultSet rs = sourceStmt.executeQuery(select);
 		ResultSetMetaData rsmd = rs.getMetaData();
 		int colNumber = rsmd.getColumnCount();
 		while (rs.next()){
@@ -49,15 +49,14 @@ public class DatabaseCreator extends DatabaseAccessor {
 				if (!insertValues.equals("")) insertValues+=", ";
 				insertValues+="\"" + rs.getString(i) + "\"";
 			}
-			String insertQuery = table.getSqlInsert() + " VALUES(" + insertValues +");";
+			String insertQuery = insert + " VALUES(" + insertValues +");";
 			try {
-				insertStmt.execute(insertQuery);
+				targetStmt.execute(insertQuery);
 			}
 			catch (SQLIntegrityConstraintViolationException e){
 				continue;
 			}
 		}
-
 		close();
 	}
 

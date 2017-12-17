@@ -20,6 +20,7 @@ public class Hello {
 	protected static final String DB_URL = "jdbc:mysql://localhost/";
 	protected static final String DB_NAME = "testdb";
 	private static final String DB_NAME_MOODY = "moody";
+	private static final String DB_NAME_TARGET = "target";
 	private static final String CREDENTIAL_FILE_PATH = "src/main/java/md/credentials.txt";
 
 	public static void main(String[] args) {
@@ -75,6 +76,7 @@ public class Hello {
 			
 			List<DimensionalModel> modelSuggestion = Suggestor.makeStarPeakSuggestion(tables, transactionsFixed);
 			List<DimensionalModel> modelFixed = cli.letUserConfirm(modelSuggestion);
+
 			DimensionalModel testDim = modelSuggestion.get(1);
 			System.out.print("clss tables: " + testDim.getClassificationTables().size());
 			System.out.print("COMPONENT tables: " + testDim.getComponentTables().size());
@@ -89,8 +91,12 @@ public class Hello {
 						if (col.getName().equals("Loc_Id") || col.getName().equals("Sale_Date"))
 							groputAtt.add(col);
 					}
+
 					AggTable aggTable= new AggTable(tab, aggForm, groputAtt);
+					System.out.print("trans table\n");
+					aggTable.printQueries();
 					TransTable transTable=new TransTable(tab);
+					System.out.print("trans table\n");
 					transTable.printQueries();
 				}
 
@@ -103,7 +109,7 @@ public class Hello {
 				classTab.createSqlScripts();
 				classTab.printSqlScripts();
 
-				createAndMigrateCollapsedTable(credentials,classTab);
+				createAndMigrateTable(credentials,classTab.getSqlSelect(), classTab.getSqlInsert(),classTab.getSqlCreate());
 			}
 
 			// 8. convert database
@@ -118,14 +124,11 @@ public class Hello {
 		}
 	}
 
-	private static void createAndMigrateCollapsedTable(Credentials credentials, HierarchyTable tab) {
+	private static void createAndMigrateTable(Credentials credentials,String select, String insert, String create) {
 		DatabaseCreator dbc;
 		try {
 			dbc = new DatabaseCreator(DB_URL, credentials.username, credentials.password);
-			dbc.collapseAndMigrate(tab, DB_NAME_MOODY);
-			//dbc.executeQuery(coltab.getCreateQuery(), DB_NAME_MOODY);
-			//dbc.executeQuery(coltab.getSelectQuery(), DB_NAME_MOODY);
-			//dbc.executeSelectQuery(tab.getSqlSelect(), tab, DB_NAME_MOODY);
+			dbc.migrate(select, insert, create, DB_NAME_MOODY, DB_NAME_TARGET);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (RuntimeException e) {

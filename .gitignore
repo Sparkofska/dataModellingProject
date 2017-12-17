@@ -16,3 +16,6 @@ RemoteSystemsTempFiles
 *.zip
 *.tar.gz
 *.rar
+
+# credentials file: don't share your credential
+javaCode/src/main/java/md/credentials.txt

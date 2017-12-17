@@ -3,13 +3,26 @@ package md;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Objects;
 
 public class CredentialParser {
 	private File credentialFile;
 
 	public CredentialParser(File credFile) {
-		this.credentialFile = credFile;
+		this.credentialFile = Objects.requireNonNull(credFile);
+		try {
+			if (!this.credentialFile.exists()) {
+				this.credentialFile.getParentFile().mkdirs();
+				this.credentialFile.createNewFile();
+				FileWriter writer = new FileWriter(this.credentialFile);
+				writer.write("username=" + System.lineSeparator());
+				writer.write("password=");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public Credentials doMagic() {

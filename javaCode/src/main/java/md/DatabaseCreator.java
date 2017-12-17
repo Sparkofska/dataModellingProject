@@ -39,7 +39,7 @@ public class DatabaseCreator extends DatabaseAccessor {
 		targetStmt.execute("USE " + targetDbName);
 
 		targetStmt.execute(create);
-
+		sourceStmt.execute("USE " + sourceDbName);
 		ResultSet rs = sourceStmt.executeQuery(select);
 		ResultSetMetaData rsmd = rs.getMetaData();
 		int colNumber = rsmd.getColumnCount();
@@ -51,6 +51,7 @@ public class DatabaseCreator extends DatabaseAccessor {
 			}
 			String insertQuery = insert + " VALUES(" + insertValues +");";
 			try {
+				targetStmt.execute("USE " + targetDbName);
 				targetStmt.execute(insertQuery);
 			}
 			catch (SQLIntegrityConstraintViolationException e){

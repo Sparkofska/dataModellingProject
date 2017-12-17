@@ -129,8 +129,6 @@ public class AggTable implements TableSQLCreator{
             tabName=tabName.replaceAll(" +", "_");
             formColNames.add(tabName);
         }
-        System.out.print("&&&&&&&&&&&&&&&&\n");
-        System.out.print(formColNames);
         this.aggFormulaColumnNames=formColNames;
     }
 
@@ -165,9 +163,6 @@ public class AggTable implements TableSQLCreator{
     }
 
     public AggTable(Table tab, List<String> aggFormula, List<Column> groupingAttributes){
-        System.out.print("FSDKLFJDSKLF\n");
-        System.out.print(aggFormula);
-        System.out.print("FSDKLFJDSKLF\n");
         this.setTable(tab);
         this.setAggFormula(aggFormula);
         this.createGroupingColumnsNames(aggFormula);

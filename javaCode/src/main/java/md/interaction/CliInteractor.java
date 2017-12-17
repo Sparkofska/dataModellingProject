@@ -9,7 +9,6 @@ import java.util.List;
 
 import md.AggTableEdit;
 import md.Presenter;
-import md.beans.AggTable;
 import md.beans.DimensionalModel;
 import md.beans.TransactionSuggestion;
 
@@ -192,29 +191,19 @@ public class CliInteractor {
 		return edits;
 	}
 
-	public List<AggTableEdit> letUserChooseAggregation(List<DimensionalModel> modelFixed) throws IOException {
+	public List<AggTableEdit> letUserChooseAggregation(List<DimensionalModel> models) throws IOException {
 
-		List<AggTableEdit> edits = new ArrayList<>(modelFixed.size());
+		List<AggTableEdit> edits = new ArrayList<>(models.size());
 		int i = 0;
-		for (DimensionalModel rename : modelFixed) {
+		for (DimensionalModel model : models) {
 
-			AggTableEdit edit = new AggTableEdit(rename.getTransactionTables().get(0)); // TODO
-																						// check
-																						// if
-																						// there
-																						// is
-																						// always
-																						// only
-																						// one
-																						// transaction
-																						// table
+			AggTableEdit edit = new AggTableEdit(model.getTransactionTables().get(0));
 			edits.add(edit);
 
 			History history = new History();
 			presenter.present("");
 			presenter.present("For every selected transaction table an aggregation can be specified!");
-			presenter.present(modelFixed, i++); // TODO check if this is really
-												// what we want
+			presenter.present(models, i++);
 
 			boolean confirmed = false;
 			while (!confirmed) {

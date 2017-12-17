@@ -75,28 +75,18 @@ public class Hello {
 			
 			List<DimensionalModel> modelSuggestion = Suggestor.makeStarPeakSuggestion(tables, transactionsFixed);
 			List<DimensionalModel> modelFixed = cli.letUserConfirm(modelSuggestion);
+			
+			for(DimensionalModel dim:modelFixed)
+				System.out.println("Ntransaction: " + dim.getTransactionTables().size());
+			
+			List<AggTableEdit> aggEdits = cli.letUserChooseAggregation(modelFixed);
+			List<AggTable> aggTables = new ArrayList<>(aggEdits.size());
+			for(AggTableEdit aggEdit : aggEdits)
+				aggTables.add(new AggTable(aggEdit.getTable(), aggEdit.getAggFormulas(), aggEdit.getAggKeys()));
+			
+			//TODO make and run scripts for aggTables
 
 			DimensionalModel testDim = modelSuggestion.get(1);
-			System.out.print("clss tables: " + testDim.getClassificationTables().size());
-			System.out.print("COMPONENT tables: " + testDim.getComponentTables().size());
-			
-			List<AggTableEdit> aggtables = cli.letUserChooseAggregation(modelFixed);
-			// TODO make AggTable
-			
-
-			for (Table tab: testDim.getComponentTables()){
-				if (tab.getName().equals("Sale")){
-					List<String> aggForm = Arrays.asList("avg(Discount_Amt)", "avg(Discount_Amt - / % * + Sale_Id)");
-					List<Column> groputAtt = new ArrayList<>() ;
-					for (Column col: tab.getCols()){
-						if (col.getName().equals("Loc_Id") || col.getName().equals("Sale_Date"))
-							groputAtt.add(col);
-					}
-					AggTable aggTable= new AggTable(tab, aggForm, groputAtt);
-				}
-
-            }
-
 			for (Table tab: testDim.getComponentTables()){
 				HierarchyTable classTab = new HierarchyTable(tab);
 				classTab.createReferencedTableList(testDim.getClassificationTables());

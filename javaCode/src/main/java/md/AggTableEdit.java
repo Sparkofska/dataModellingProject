@@ -11,9 +11,11 @@ public class AggTableEdit {
 	private List<Column> unclassified;
 	private List<Column> aggKeys;
 	private List<String> aggFormulas;
+	private Table table;
 
 	public AggTableEdit(Table table) {
 		this.setUnclassified(table.getCols());
+		this.table = table;
 	}
 
 	public void addAggregation(String keyColName, String fomula) {
@@ -72,4 +74,7 @@ public class AggTableEdit {
 		this.aggFormulas = addFormulas;
 	}
 
+	public Table getTable() {
+		return table;
+	}
 }

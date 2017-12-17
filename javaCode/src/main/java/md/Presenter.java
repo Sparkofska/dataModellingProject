@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
-import md.beans.AggTable;
 import md.beans.Column;
 import md.beans.DimensionalModel;
 import md.beans.Table;

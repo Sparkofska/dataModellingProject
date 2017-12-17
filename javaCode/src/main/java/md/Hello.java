@@ -84,13 +84,12 @@ public class Hello {
 			for (Table tab: testDim.getComponentTables()){
 				if (tab.getName().equals("Sale")){
 					List<String> aggForm = Arrays.asList("avg(Discount_Amt)", "avg(Discount_Amt - / % * + Sale_Id)");
-					List<String> aggType = Arrays.asList("FLOAT", "FLOAT");
 					List<Column> groputAtt = new ArrayList<>() ;
 					for (Column col: tab.getCols()){
 						if (col.getName().equals("Loc_Id") || col.getName().equals("Sale_Date"))
 							groputAtt.add(col);
 					}
-					AggTable aggTable= new AggTable(tab, aggForm, aggType, groputAtt);
+					AggTable aggTable= new AggTable(tab, aggForm, groputAtt);
 				}
 
             }

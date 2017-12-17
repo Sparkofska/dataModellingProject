@@ -1,5 +1,6 @@
 package md.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Table {
@@ -20,12 +21,43 @@ public class Table {
 		return name;
 	}
 
+	public String getColsNames() {
+	    String listOfCols = "";
+		for (Column col: this.cols){
+			listOfCols += col.getName() + "\n";
+		}
+		return listOfCols;
+	}
+
+	public List<Column> getFKColumns(){
+	    List<Column> fkCols= new ArrayList<>();
+		for (Column col: this.cols){
+			if (col.isForeignKey()) {
+				try {
+					fkCols.add(Column.class.cast(col.clone()));
+				} catch (Exception e) {
+				}
+			}
+		}
+		return fkCols;
+	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
 
 	public List<Column> getCols() {
 		return cols;
+	}
+
+	public Column getColumnByName(String colName) throws Exception {
+	    if (colName == null) return null;
+		for (Column col: this.getCols()){
+			if (col.getName().equals(colName)){
+				return col;
+			}
+		}
+		throw new Exception("Column " + colName + " is not present in table " + this.getName());
 	}
 
 	public void setCols(List<Column> cols) {

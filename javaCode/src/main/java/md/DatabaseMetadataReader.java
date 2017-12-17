@@ -111,7 +111,17 @@ public class DatabaseMetadataReader extends DatabaseAccessor {
 					col.setName(value != null ? value.toString() : "isNull");
 				} else if (label != null && label.equals("TYPE_NAME")) {
 					valid++;
-					col.setType(value != null ? value.toString() : "isNull");
+					if (value == null){
+						col.setType("isNull");
+					}
+					else{
+						if (value.equals("VARCHAR")){
+							col.setType(value+"(255)");
+						}
+						else{
+							col.setType(value.toString());
+						}
+					}
 				}
 			}
 

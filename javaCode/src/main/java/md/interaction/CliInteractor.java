@@ -53,9 +53,11 @@ public class CliInteractor {
 								"Wrong input for set. use it this way: set <TableName> <transaction, unclassified>");
 					switch (lineParts[2]) {
 					case "transaction":
+					case "trans":
 						command = new AddTransactionTable(edit, lineParts[1]);
 						break;
 					case "unclassified":
+					case "unclass":
 						command = new RemoveTransactionTable(edit, lineParts[1]);
 						break;
 
@@ -137,14 +139,17 @@ public class CliInteractor {
 									"Wrong input for set. use it this way: set <TableName> <component, classification, unclassified>");
 						switch (lineParts[2]) {
 						case "component":
+						case "comp":
 							command = new SetComponent(edit, lineParts[1]);
 							break;
 
 						case "classification":
+						case "class":
 							command = new SetClassification(edit, lineParts[1]);
 							break;
 
 						case "unclassified":
+						case "unclass":
 							command = new SetUnclassified(edit, lineParts[1]);
 							break;
 
@@ -218,6 +223,8 @@ public class CliInteractor {
 								"Wrong input for set. use it this way: set <columnName> <aggregation, unclassified> <aggregationFormula>");
 					switch (lineParts[2]) {
 					case "aggregation":
+					case "agg":
+					case "aggregate":
 						if (lineParts.length != 4)
 							throw new WrongUserInputException(
 									"Wrong input for aggregation. use it this way: set <columnName> aggregation <aggregationFormula>. aggregationFormula must not contain whitespace.");
@@ -225,6 +232,7 @@ public class CliInteractor {
 						break;
 
 					case "unclassified":
+					case "unclass":
 						if (lineParts.length != 3)
 							throw new WrongUserInputException(
 									"Wrong input for unclassified. use it this way: set <columnName> unclassified");

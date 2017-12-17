@@ -1,6 +1,6 @@
 package md.beans;
 
-public class TransTable {
+public class TransTable implements TableSQLCreator{
     private Table table;
 
     private String selectQuery;
@@ -56,5 +56,20 @@ public class TransTable {
         this.setTable(tab);
         this.createQueries();
     }
+
+	@Override
+	public String getSelectQuery() {
+		return this.selectQuery;
+	}
+
+	@Override
+	public String getCreateQuery() {
+		return this.createQuery;
+	}
+
+	@Override
+	public String getInsertQuery() {
+		return this.insertQuery;
+	}
 }
 

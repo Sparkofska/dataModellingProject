@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class AggTable {
+public class AggTable implements TableSQLCreator{
     private Table table;
 
     private List<String> aggFormula;
@@ -172,4 +172,19 @@ public class AggTable {
         this.createSelect();
         this.createCreate();
     }
+
+	@Override
+	public String getSelectQuery() {
+		return this.selectQuery;
+	}
+
+	@Override
+	public String getCreateQuery() {
+		return this.createQuery;
+	}
+
+	@Override
+	public String getInsertQuery() {
+		return this.insertQuery;
+	}
 }

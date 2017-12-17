@@ -91,20 +91,6 @@ public class HierarchyTable extends Table {
         return agg;
     }
 
-    public void printStructure(String padding){
-        System.out.print(padding + "Table: " + this.getTabPrefix()+ this.getName() +"\n");
-        System.out.print(padding + "  Cols: " );
-        for (Column col: this.getCols()){
-            System.out.print( col.getName() + " ");
-        }
-        System.out.print("\n");
-        System.out.print("SELECT " + this.selectTablesPart +"\n");
-        System.out.print("FROM " + this.selectFromPart +"\n");
-        for(HierarchyTable t: this.getReferencedTabs()){
-            t.printStructure(padding+"\t");
-        }
-    }
-
     public void setTabPrefix(String tabPrefix) {
         this.tabPrefix = tabPrefix;
     }
@@ -139,6 +125,10 @@ public class HierarchyTable extends Table {
         this.sqlSelect=select + selectFrom + ";\n";
         this.sqlCreate=createCols + ",\n\tPRIMARY KEY (" +createPK + "));";
         this.sqlInsert=insert + ")";
+
+        this.sqlSelect=this.sqlSelect.replaceFirst("^ SELECT +,", " SELECT ");
+        this.sqlInsert=this.sqlInsert.replaceFirst("\\(\\s*,", "\\(");
+        this.sqlCreate=this.sqlCreate.replaceFirst("\\(\\s*,", "\\(");
     }
 
     public void printSqlScripts(){
@@ -348,22 +338,6 @@ public class HierarchyTable extends Table {
         //System.out.print(getName()+"% select " + this.selectTablesPart +"\n");
         //System.out.print(getName()+"% from  " + this.selectFromPart + "\n");
     }
-
-
-    private void duplicateTable(Table tab){
-        this.setName(tab.getName());
-        List<Column> clonedColumns = new ArrayList<>();
-        for (Column col : tab.getCols()) {
-            try{
-                clonedColumns.add(Column.class.cast(col.clone()));
-            }
-            catch (Exception e) {
-                System.err.println(e.getMessage());
-            }
-        }
-        this.setCols(clonedColumns);
-    }
-
 
     public void setReferencedTabs(List<HierarchyTable> referencedTabs) {
         this.referencedTabs = referencedTabs;

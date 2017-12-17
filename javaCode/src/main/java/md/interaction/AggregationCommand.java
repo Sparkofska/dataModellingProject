@@ -1,5 +1,7 @@
 package md.interaction;
 
+import java.util.Objects;
+
 import md.AggTableEdit;
 
 public abstract class AggregationCommand extends Command {
@@ -15,9 +17,9 @@ public abstract class AggregationCommand extends Command {
 
 	public AggregationCommand(AggTableEdit edit, String columnName, String formula) {
 		super();
-		this.edit = edit;
-		this.columnName = columnName;
-		this.formula = formula;
+		this.edit = Objects.requireNonNull(edit);
+		this.columnName = Objects.requireNonNull(columnName);
+		this.formula = Objects.requireNonNull(formula);
 	}
 
 	public AggTableEdit getEdit() {

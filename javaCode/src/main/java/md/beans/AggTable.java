@@ -1,149 +1,154 @@
 package md.beans;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class AggTable extends Table {
-    private List<String> aggFormula;
-    private List<String> aggFormulaResultType;
-    private List<String> aggFormulaColumnNames;
-    private List<Column> groupingAttributes;
+public class AggTable {
 
-    private String selectQuery;
-    private String createQuery;
-    private String insertQuery;
+	private Table table;
 
-    public void setAggFormulaColumnNames(List<String> aggFormulaColumnNames) {
-        this.aggFormulaColumnNames = aggFormulaColumnNames;
-    }
+	private List<String> aggFormula;
+	private List<String> aggFormulaResultType;
+	private List<String> aggFormulaColumnNames;
+	private List<Column> groupingAttributes;
 
-    public List<String> getAggFormulaColumnNames() {
-        return aggFormulaColumnNames;
-    }
+	private String selectQuery;
+	private String createQuery;
+	private String insertQuery;
 
-    public void setAggFormulaResultType(List<String> aggFormulaResultType) {
-        this.aggFormulaResultType = aggFormulaResultType;
-    }
+	public Table getTable() {
+		return table;
+	}
 
-    public void setAggFormula(List<String> aggFormula) {
-        this.aggFormula = aggFormula;
-    }
+	public void setTable(Table table) {
+		this.table = table;
+	}
 
-    public void setGroupingAttributes(List<Column> groupingAttributes) {
-        this.groupingAttributes = groupingAttributes;
-    }
+	public void setAggFormulaColumnNames(List<String> aggFormulaColumnNames) {
+		this.aggFormulaColumnNames = aggFormulaColumnNames;
+	}
 
-    public String getSelectHeader(){
-        String head="";
-        for (Column col: this.groupingAttributes){
-            if (!head.equals(""))
-                head+=", ";
-            head+=col.getName() + " ";
-        }
+	public List<String> getAggFormulaColumnNames() {
+		return aggFormulaColumnNames;
+	}
 
-        for (String formula: this.aggFormula){
-            head+=", " + formula + " ";
-        }
-        return head;
-    }
+	public void setAggFormulaResultType(List<String> aggFormulaResultType) {
+		this.aggFormulaResultType = aggFormulaResultType;
+	}
 
-    public String getNewTableHeader(){
-        String head="";
-        for (Column col: this.groupingAttributes){
-            if (!head.equals(""))
-                head+=", ";
-            head+=col.getName() + " ";
-        }
+	public void setAggFormula(List<String> aggFormula) {
+		this.aggFormula = aggFormula;
+	}
 
-        for (String formula: this.getAggFormulaColumnNames()){
-            head+=", " + formula + " ";
-        }
-        return head;
-    }
+	public void setGroupingAttributes(List<Column> groupingAttributes) {
+		this.groupingAttributes = groupingAttributes;
+	}
 
-    private void createCreate(){
+	public String getSelectHeader() {
+		String head = "";
+		for (Column col : this.groupingAttributes) {
+			if (!head.equals(""))
+				head += ", ";
+			head += col.getName() + " ";
+		}
 
-        String head="";
-        for (Column col: this.groupingAttributes){
-            if (!head.equals(""))
-                head+=",\n\t";
-            head+=col.getName() + " " + col.getType();
-        }
+		for (String formula : this.aggFormula) {
+			head += ", " + formula + " ";
+		}
+		return head;
+	}
 
-        for (int i=0; i<this.aggFormulaColumnNames.size(); i++){
-            head+=",\n\t" + this.aggFormulaColumnNames.get(i) + " " + this.aggFormulaResultType.get(i) + " ";
-        }
+	public String getNewTableHeader() {
+		String head = "";
+		for (Column col : this.groupingAttributes) {
+			if (!head.equals(""))
+				head += ", ";
+			head += col.getName() + " ";
+		}
 
-        head+=",\n\tPRIMARY KEY(";
-        boolean addCommaChar=false;
-        for (Column col: this.groupingAttributes){
-            if (addCommaChar)
-                head+=", ";
-            head+= col.getName() + " ";
-            addCommaChar=true;
-        }
-        this.createQuery="CREATE TABLE IF NOT EXISTS " + this.getName() + "_agg" + "(" + head + "));\n";
-    }
+		for (String formula : this.getAggFormulaColumnNames()) {
+			head += ", " + formula + " ";
+		}
+		return head;
+	}
 
-    public void createSelect(){
-        this.selectQuery="SELECT " + this.getSelectHeader() + "\nfrom " + this.getName() + " \n";
-        String group="";
-        for (Column col: this.groupingAttributes){
-            if (!group.equals(""))
-                group+=", ";
-            group+=col.getName() + " ";
-        }
-        this.selectQuery+="GROUP BY " + group +";\n";
+	private void createCreate() {
 
-    }
+		String head = "";
+		for (Column col : this.groupingAttributes) {
+			if (!head.equals(""))
+				head += ",\n\t";
+			head += col.getName() + " " + col.getType();
+		}
 
-    public void createInsert(){
-        this.insertQuery="INSERT INTO "+this.getName() +"_agg ("+ this.getNewTableHeader();
-    }
+		for (int i = 0; i < this.aggFormulaColumnNames.size(); i++) {
+			head += ",\n\t" + this.aggFormulaColumnNames.get(i) + " " + this.aggFormulaResultType.get(i) + " ";
+		}
 
-    private void createGroupingColumnsNames(List<String> aggFormula){
-        List<String> formColNames= new ArrayList<>();
-        for (int i=0; i < aggFormula.size(); i++){
-            String tabName=aggFormula.get(i);
-            tabName=tabName.replaceAll("_", "");
-            tabName=tabName.replaceFirst("\\(", "_");
-            tabName=tabName.replaceAll("\\(", "");
-            tabName=tabName.replaceAll("\\)", "");
-            tabName=tabName.replaceAll("\\*", "");
-            tabName=tabName.replaceAll("\\/", "");
-            tabName=tabName.replaceAll("\\+", "");
-            tabName=tabName.replaceAll("\\-", "");
-            tabName=tabName.replaceAll("\\%", "");
-            tabName=tabName.replaceAll(" +", ",");
-            formColNames.add(tabName);
-            System.out.print("\n---colname: " + tabName + "\n");
-        }
-        this.aggFormulaColumnNames=formColNames;
-    }
+		head += ",\n\tPRIMARY KEY(";
+		boolean addCommaChar = false;
+		for (Column col : this.groupingAttributes) {
+			if (addCommaChar)
+				head += ", ";
+			head += col.getName() + " ";
+			addCommaChar = true;
+		}
+		this.createQuery = "CREATE TABLE IF NOT EXISTS " + this.table.getName() + "_agg" + "(" + head + "));\n";
+	}
 
-    public AggTable(Table tab, List<String> aggFormula, List<String> aggFormulaResultType, List<Column> groupingAttributes){
-        this.setName(tab.getName());
-        this.setAggFormula(aggFormula);
-        this.setAggFormulaResultType(aggFormulaResultType);
-        this.setGroupingAttributes(groupingAttributes);
-        this.createGroupingColumnsNames(aggFormula);
+	public void createSelect() {
+		this.selectQuery = "SELECT " + this.getSelectHeader() + "\nfrom " + this.table.getName() + " \n";
+		String group = "";
+		for (Column col : this.groupingAttributes) {
+			if (!group.equals(""))
+				group += ", ";
+			group += col.getName() + " ";
+		}
+		this.selectQuery += "GROUP BY " + group + ";\n";
 
-        List<Column> clonedColumns = new ArrayList<>();
-        for (Column col : tab.getCols()) {
-            try{
-                clonedColumns.add(Column.class.cast(col.clone()));
-            }
-            catch (Exception e) {
-                System.err.println(e.getMessage());
-            }
-        }
-        this.setCols(clonedColumns);
-        this.createInsert();
-        this.createSelect();
-        this.createCreate();
-        System.out.print(this.selectQuery);
-        System.out.print(this.createQuery);
-        System.out.print(this.insertQuery);
-    }
+	}
+
+	public void createInsert() {
+		this.insertQuery = "INSERT INTO " + this.table.getName() + "_agg (" + this.getNewTableHeader();
+	}
+
+	private void createGroupingColumnsNames(List<String> aggFormula) {
+		List<String> formColNames = new ArrayList<>();
+		for (int i = 0; i < aggFormula.size(); i++) {
+			String tabName = aggFormula.get(i);
+			tabName = tabName.replaceAll("_", "");
+			tabName = tabName.replaceFirst("\\(", "_");
+			tabName = tabName.replaceAll("\\(", "");
+			tabName = tabName.replaceAll("\\)", "");
+			tabName = tabName.replaceAll("\\*", "");
+			tabName = tabName.replaceAll("\\/", "");
+			tabName = tabName.replaceAll("\\+", "");
+			tabName = tabName.replaceAll("\\-", "");
+			tabName = tabName.replaceAll("\\%", "");
+			tabName = tabName.replaceAll(" +", ",");
+			formColNames.add(tabName);
+			System.out.print("\n---colname: " + tabName + "\n");
+		}
+		this.aggFormulaColumnNames = formColNames;
+	}
+
+	public AggTable(Table tab, List<String> aggFormula, List<String> aggFormulaResultType,
+			List<Column> groupingAttributes) {
+		this.setTable(tab);
+		this.setAggFormula(aggFormula);
+		this.setAggFormulaResultType(aggFormulaResultType);
+		this.setGroupingAttributes(groupingAttributes);
+		this.createGroupingColumnsNames(aggFormula);
+
+		this.createInsert();
+		this.createSelect();
+		this.createCreate();
+		System.out.print(this.selectQuery);
+		System.out.print(this.createQuery);
+		System.out.print(this.insertQuery);
+	}
+
+	public AggTable(Table tab) {
+		this.setTable(tab);
+	}
 }

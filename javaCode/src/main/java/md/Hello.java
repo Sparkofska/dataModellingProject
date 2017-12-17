@@ -1,10 +1,12 @@
 package md;
 
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import md.CredentialParser.Credentials;
@@ -78,6 +80,20 @@ public class Hello {
 			System.out.print("COMPONENT tables: " + testDim.getComponentTables().size());
 			List<Table> testTables = new ArrayList<>();
 			List<Table> testtt = new ArrayList<>();
+
+			for (Table tab: testDim.getComponentTables()){
+				if (tab.getName().equals("Sale")){
+					List<String> aggForm = Arrays.asList("avg(Discount_Amt)", "avg(Discount_Amt - / % * + Sale_Id)");
+					List<String> aggType = Arrays.asList("FLOAT", "FLOAT");
+					List<Column> groputAtt = new ArrayList<>() ;
+					for (Column col: tab.getCols()){
+						if (col.getName().equals("Loc_Id") || col.getName().equals("Sale_Date"))
+							groputAtt.add(col);
+					}
+					AggTable aggTable= new AggTable(tab, aggForm, aggType, groputAtt);
+				}
+
+            }
 
 			for (Table tab: testDim.getComponentTables()){
 				HierarchyTable classTab = new HierarchyTable(tab);

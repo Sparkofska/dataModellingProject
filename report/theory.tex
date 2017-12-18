@@ -1,1 +1,39 @@
 %State of the art
+
+The method for developing dimensional models from Entity Relationship models proposed by Moody \andothers in \cite{moody2000enterprise} was used by us as a basis to implement the program.
+The method is here only quicly outlined, for deeper information refer to the original paper.
+Moody's method consists basically of three steps:
+
+\paragraph{Classify Entities}
+
+In the first step the entities of the Entity Relationship model need to be classified into one of the following categories: \emph{transaction}, \emph{component} or \emph{classification}.
+
+The transaction tables describe certain events that occur in the business (\eg sales in a retail store) and contain measurements or quantities that my be summarized.
+The transaction tables are the most important in a data warehouse and will result later in so called \emph{fact tables}.
+
+A component entity contains further information about the facts in the transaction tables and will therefore result later in so called \emph{dimension tables} of a star schema.
+The components are directly related to the transaction entities via a one-to-many relationship.
+
+Other tables that are related, directly or transitively, to the component via one-to-many relationships will be categorized as classification entities.
+They are adding even more information (can be more abstract or more detailed) to the components and will accordingly end up in the dimension tables.
+
+\paragraph{Identify Hierarchies}
+
+\emph{Hierarchies} in terms of \cite{moody2000enterprise} are chains of one-to-many relationships, all aligned in the same direction.
+The terms \emph{minimal} and \emph{maximal} are introduced in this context.
+Entities are called minimal if they occur at the bottom of a hierarchy chain, and are called maximal if they occur at the top.
+Hierarchies are important, because they can be collapsed.
+Collapsing is an important step in simplifying the database schema by introducing redundancy.
+
+\paragraph{Produce Dimensional Models}
+
+In  order to transform the database, Moody describes two operators.
+Firstly the hierarchies found in the step before get \emph{collapsed}.
+Beginning at the maximal entities the data is gradually merged into the entity's child table: By resolving foreign key constraints the data is duplicated and redundancy is produced.
+This process can be continued until the minimal entity is reached and all the data is located in a single table.
+However, for generating a star schema the collapsing process should be stopped when a component entity is reached in order to construct a proper dimension.
+
+The second operator is called \emph{aggregation} and can be applied optionally.
+The goal here is to summarize the data in order to present it in a more compressed way (by doing this we will lose detail of information that cannot be reversed).
+To achieve aggregation, columns of a table must be selected to act as aggregation keys (by which the data will be grouped) and an aggregation function must be specified for the aggregated columns (numerical attributes like price, quantity, etc.).
+

@@ -1,1 +1,31 @@
-In recent years the increasing amount
+In recent years the increasing amount of collected data led to the possibility on the one hand, but also to the requirement of big data analysis.
+More and more data was being produced. Especially retailers and the sector of e-commerce are producing enormous amounts of data every day and have the urge to get aggregated information out of this data.
+In order to cope with the growing data, extract programs were built that made the data usable for specific applications.
+In this manner data was pulled and copied to other places and under the control of someone else.
+Soon problem occured like Lack of data credibility, issues in productivity and the inability to transform data into information and a solution was needed to clear the mess.
+Therefore the the idea of \emph{data warehouses} arose.
+A data warehouse is an analytical database that is used as the foundation of a decision support system.
+It is designed for large volumes of read-only data. providing intuitive access to information that will be used in making decisions.
+Particularly it is designed to be a \qq{self-service} for analysts to generate information out of the data rather relying on IT specialists.
+
+\subsection{The approach of data warehouses}
+
+Moody \andothers propose in \cite{moody2000enterprise} an approach of how a data warehouse can be structured as well as the methodology how to transform an enterprise database into the proposed structure.
+They mention several possible schemes, namely \emph{Flat}, \emph{Terraced}, \emph{Star}, \emph{Snowflake Scheme}, that are suitable for a data warehouse.
+Especially they name the \emph{Star Scheme} as a generic model.
+
+In contrast to conventional OLTP Enterprise models the star scheme based OLAP models have the following advantages.
+While OLTP models are desinged in a normalized way to get rid of redundancy, the data in dimensionals models is highly redundand and denormalized.
+Due to the introduced redundancy the system is way more performant because only a few join need to be made for a query.
+Besides that the denormalized model improves the ease-of-use, because the small number of tables can be understood easily.
+Using the metaphor of a dimensional cube, it is made easier to think of operations that need to be made in order to get the desired results.
+
+\subsection{A tool to generate dimensional models}
+
+At a point where there exists a lot of interesting data in an enterprise database a tool comes in handy that can transfer this data into a dimensional model.
+According to this we implemented in this project a tool which transforms an arbitrary database scheme into a Star Scheme for a data warehouse.
+This paper describes how we achieved that goal.
+In chapter \ref{sec:theory} we will clarify the methodology proposed by \cite{moody2000enterprise}.
+Section \ref{sec:implementation} gives detailed information about how we implemented the system, which algorithms we came up with and how the tool is designed.
+In order to show how the tool performs there are some results and evaluation shown in section \ref{sec:evaluation}.
+

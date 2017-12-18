@@ -11,6 +11,7 @@
 \usepackage{colortbl}
 \usepackage{ragged2e}
 \usepackage{german}
+\usepackage{listings}
 %\selectlanguage{\german}
 \selectlanguage{\english}
 \usepackage{subfig}
@@ -25,6 +26,15 @@
 %\newacronym{RFS}{RFS}{Random Finite Sets}
 
 %\define\gls{asd}
+
+% for nice code
+\lstset{
+  basicstyle={\small\ttfamily},
+  frame=single, 
+  columns=flexible,
+  breakatwhitespace=true
+}
+
 
 \def\andothers{\textit{et al.\,}}
 \newcommand{\qq}[1]{{``#1''}}
@@ -89,11 +99,10 @@ Dusan Zeliar {\tt\small d.zeliar@campus.fct.unl.pt}
 
 \section{Conclusion}
 \label{sec:conclusion}
-\input{04conclusion.tex}
+\input{conclusion.tex}
 
-\section{How to use Latex}
-% TODO remove this section
-\input{99example.tex}
+%\section{How to use Latex}
+%\input{99example.tex}
 
 \addtolength{\textheight}{0cm}   % This command serves to balance the column lengths
                                   % on the last page of the document manually. It shortens

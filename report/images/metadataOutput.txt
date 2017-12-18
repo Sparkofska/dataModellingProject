@@ -1,0 +1,55 @@
+Customer (importedKeys: 2, exportedKeys: 1)
+  Cust_Id [INT] (PK)
+  Cust_Name [VARCHAR(255)]
+  Cust_Type_Id [INT] (FK->CustomerType:Cust_Type_Id)
+  Cust_Regn_Id [INT] (FK->Region:Regn_Id)
+
+CustomerType (importedKeys: 0, exportedKeys: 1)
+  Cust_Type_Id [INT] (PK)
+  Cust_Type_Name [VARCHAR(255)]
+
+FeeType (importedKeys: 0, exportedKeys: 1)
+  Fee_Type_Id [INT] (PK)
+  Fee_Type_Name [VARCHAR(255)]
+
+Location (importedKeys: 2, exportedKeys: 1)
+  Loc_Id [INT] (PK)
+  Loc_Name [VARCHAR(255)]
+  Loc_Regn_Id [INT] (FK->Region:Regn_Id)
+  Loc_Type_Id [INT] (FK->LocationType:Loc_Type_Id)
+
+LocationType (importedKeys: 0, exportedKeys: 1)
+  Loc_Type_Id [INT] (PK)
+  Loc_Type_Name [VARCHAR(255)]
+
+Period (importedKeys: 0, exportedKeys: 2)
+  Date [INT] (PK)
+  Mth [INT]
+  Qtr [INT]
+  Yr [INT]
+  Fiscal_Yr [INT]
+
+Sale (importedKeys: 4, exportedKeys: 2)
+  Sale_Id [INT] (PK)
+  Sale_Date [INT] (FK->Period:Date)
+  Sale_Posted [INT] (FK->Period:Date)
+  Cust_Id [INT] (FK->Customer:Cust_Id)
+  Loc_Id [INT] (FK->Location:Loc_Id)
+  Discount_Amt [FLOAT]
+
+SaleFee (importedKeys: 2, exportedKeys: 0)
+  Sale_Id [INT] (PK) (FK->Sale:Sale_Id)
+  Fee_Type_Id [INT] (PK) (FK->FeeType:Fee_Type_Id)
+  Fee [FLOAT]
+
+SaleItem (importedKeys: 2, exportedKeys: 0)
+  Sale_Id [INT] (PK) (FK->Sale:Sale_Id)
+  Prod_Id [INT] (PK) (FK->Product:Prod_Id)
+  Qty [INT]
+  Unit_Price [FLOAT]
+
+State (importedKeys: 0, exportedKeys: 1)
+  State_Id [INT] (PK)
+  State_Name [VARCHAR(255)]
+
+...

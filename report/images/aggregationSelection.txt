@@ -1,0 +1,13 @@
+For every selected transaction table an aggregation can be specified!
+ * SaleFee
+   SaleItem
+Do you want to aggregate this table 'SaleFee'? Possible actions: yes, no
+
+> yes
+
+AGGREGATION KEYS:
+1. Fee_Type_Id : SUM(Fee)
+UNCLASSIFIED COLUMNS:
+1. Sale_Id
+2. Fee
+Possible actions: set, save, fix, undo, help

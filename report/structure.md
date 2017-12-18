@@ -11,7 +11,9 @@
     - Transaction, Classification (minimal, maximal hierarchy), ...
     - 2 Operations: Collapse, Aggregation
 
-## Application Design
+## Implementation
+
+### Application Design
 
 - What is input, output?
 - high level description of algorithm (What is parsed, what is aggregated, ...)
@@ -20,14 +22,14 @@
 - [Dusan] What algorithms used for aggregation and collapse
 - How the dimensional model is constructed
 
-## Implementation
+### Implementation Details
 
 - [Dusan, Jonas] UML Class Diagram of the components (which are there, how they work together)
 - Data flow diagram of the pipeline
 - which algorithms we use
 - more approaches?
 
-## Usage of programm (quite short)
+### Usage of programm (quite short)
 
 - [Jonas] short manual how to interface with the program
 

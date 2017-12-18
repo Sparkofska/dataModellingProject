@@ -1,5 +1,53 @@
 \subsection{Application Design}
 
-\subsection{Implementation}
+The tool we implemented is designed as pipeline that takes an arbitrary database as input and outputs a set of SQL scripts, which can be run to create a new database having a dimensional scheme.
+The user is guided throughout the whole process via a command line interface, which enforces him to do the steps in the right order.
+As a special feature we implemented a mechanism to save the current working state in order to continue the work at a later point in time.
+As soon as all the specifications about the resulting scheme are made, the program will output and run the resulting SQL scripts in a way that the new database is created and the original data is populated.
+
+\paragraph{Making suggestions}
+
+\paragraph{User interaction}
+
+SaveAndLoad
+
+\paragraph{Generating SQL}
+%TODO Dusan
+
+\subsection{Implementation Details}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{images/dataFlowDiagram}
+  \caption{Dataflow Diagram of the Pipeline.}
+  \label{fig:dataflowDiagram}
+\end{figure}
+
+As a first step the input database is parsed using the JDBC library\footnote{\url{http://www.oracle.com/technetwork/java/javase/jdbc/index.html}}.
+
+\begin{figure}[p]
+  \lstinputlisting[breaklines]{images/metadataOutput.txt}
+  \caption{Output of parsed metadata}
+  \label{fig:metadataOutput}
+\end{figure}
 
 \subsection{Usage of the Tool}
+
+\begin{figure}[p]
+  \lstinputlisting[breaklines]{images/transactionSuggestion.txt}
+  \caption{Commandline interface: Suggestion and Selection of \emph{Transaction entities}}
+  \label{fig:transactoinSuggestion}
+\end{figure}
+
+\begin{figure}[p]
+  \lstinputlisting[breaklines]{images/dimensionalModelSuggestion.txt}
+  \caption{Commandline interface: Suggestion and Selection of \emph{Component and Classification entities}}
+  \label{fig:dimensionalModelSuggestion}
+\end{figure}
+
+\begin{figure}[p]
+  \lstinputlisting[breaklines]{images/aggregationSelection.txt}
+  \caption{Commandline interface: Selection of \emph{Aggregation functions}}
+  \label{fig:aggregationSelection}
+\end{figure}
+

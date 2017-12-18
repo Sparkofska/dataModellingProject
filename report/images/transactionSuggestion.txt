@@ -1,0 +1,18 @@
+The transaction tables must be selected!
+
+TRANSACTION TABLES:
+1. SaleFee
+2. SaleItem
+UNCLASSIFIED TABLES:
+1. Sale
+2. Customer
+3. Location
+4. Product
+5. CustomerType
+6. FeeType
+7. LocationType
+8. ProductType
+9. Region
+10. State
+11. Period
+Possible actions: set, save, fix, undo, help

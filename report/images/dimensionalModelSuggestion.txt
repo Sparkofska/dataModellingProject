@@ -1,0 +1,19 @@
+For every selected transaction table the components and classifications must be specified!
+ * SaleFee
+   SaleItem
+
+TRANSACTION TABLES:
+1. SaleFee
+COMPONENT TABLES:
+1. Sale
+2. FeeType
+CLASSIFICATION TABLES:
+1. CustomerType
+2. Region
+3. Customer
+4. Location
+5. Period
+6. LocationType
+7. State
+UNCLASSIFIED TABLES:
+Possible actions: set, save, fix, undo, help

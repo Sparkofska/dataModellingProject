@@ -7,12 +7,25 @@ As soon as all the specifications about the resulting scheme are made, the progr
 
 \paragraph{Making suggestions}
 
+The program tries to support the user in a helpful way.
+After the input database scheme is read, the system will come up with some suggestions for the categorization of tables (according to \ref{par:classifyEntities}).
+
+Since it is a hard job to find transaction candidates without knowing about the business from only the database schema, we decided to use a different approach.
+It is likely that the user will choose a minimal entity as transaction because it is one of the roots of the database and therefore a very important table for the business.
+In order to obtain every minimal entity we find every table that is not referenced by any foreign key.
+
+
 \paragraph{User interaction}
+
+- generation can not be done completely automatically
+- users needs and desires are unpredictable and the according structure of dimensional as well
+- therefore we need user interaction and the supervision and confirmation of the user
+- every time a suggestion is made by the program, it will be presented to the user, letting him modify this shit and confirm when he thinks the right design is chosen.
 
 SaveAndLoad
 
 \paragraph{Generating SQL}
-%TODO Dusan
+TODO Dusan %TODO
 
 \subsection{Implementation Details}
 

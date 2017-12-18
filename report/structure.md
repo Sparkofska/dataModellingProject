@@ -5,6 +5,7 @@
 
 ## Theory (State of the art)
 
+[Jonas]
 - refer to Moody
 - describe his algorithm
 - introduce his terms

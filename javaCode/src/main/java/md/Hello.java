@@ -25,11 +25,9 @@ public class Hello {
 	private static final String CREDENTIAL_FILE_PATH = "src/main/java/md/credentials.txt";
 
 	public static void main(String[] args) {
-		System.out.println("Hello World!");
 		Credentials credentials = new CredentialParser(new File(CREDENTIAL_FILE_PATH)).doMagic();
 		// createExampleDatabase(credentials);
 		pipeline(credentials);
-		System.out.println("terminated.");
 	}
 
 	// @formatter:off
@@ -63,7 +61,7 @@ public class Hello {
 					.getMetadata(DB_NAME_MOODY);
 
 			// 2. present meta data to user
-			// presenter.presentMetadata(tables);
+			 presenter.presentMetadata(tables);
 
 			// 3. think of suggestions for conversion
 			TransactionSuggestion transactionSuggestion = Suggestor.makeTransactionSuggestion(tables);
@@ -75,11 +73,13 @@ public class Hello {
 			CliInteractor cli = new CliInteractor(presenter, System.in);
 			TransactionSuggestion transactionsFixed = cli.letUserConfirm(transactionSuggestion);
 
-			List<DimensionalModel> modelSuggestion = Suggestor.makeStarPeakSuggestion(tables, transactionsFixed);
+			List<DimensionalModel> modelSuggestion = Suggestor.makeDimensionalModelSuggestion(tables, transactionsFixed);
 			List<DimensionalModel> modelFixed = cli.letUserConfirm(modelSuggestion);
 
-			// 8. convert database
 			List<TableSQLCreator> createTables = cli.letUserChooseAggregation(modelFixed);
+			
+			// 8. convert database
+			presenter.present("Generating dimensional model database...");
 			for (TableSQLCreator transTable : createTables) {
 				createAndMigrateTable(credentials, transTable.getSelectQuery(), transTable.getInsertQuery(),
 						transTable.getCreateQuery());
@@ -93,6 +93,7 @@ public class Hello {
 					createAndMigrateTable(credentials, hirTable.getSqlSelect(), hirTable.getSqlInsert(), hirTable.getSqlCreate());
 				}
 			}
+			presenter.present("Dimensional model successfully generated.");
 
 		} catch (SQLException e) {
 			e.printStackTrace();

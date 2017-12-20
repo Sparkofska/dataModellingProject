@@ -58,7 +58,7 @@ public class Suggestor {
 		return new TransactionSuggestion(roots, remains);
 	}
 
-	public static List<DimensionalModel> makeStarPeakSuggestion(final List<Table> oltp,
+	public static List<DimensionalModel> makeDimensionalModelSuggestion(final List<Table> oltp,
 			final TransactionSuggestion transactionsFixed) {
 
 		List<DimensionalModel> ret = new ArrayList<>();

@@ -8,11 +8,11 @@ void createReferencedTableList(List<Table> allTabs){
      String tableToJoin;
      if (hasMultipleKeysToTheSameTable(col)){
 
-      tableToJoin= createTableToJoinStr(distrPrefix,col.getFKeyTable());
+      tableToJoin= createTableToJoinStr(distrPrefix, col.getFKeyTable());
       ht=new ExpandTransTable(tab, prefix, allTabs);
      }
      else{
-      tableToJoin= createTableToJoinStr(distrPrefix,col.getFKeyTable());
+      tableToJoin= createTableToJoinStr(distrPrefix, col.getFKeyTable());
       ht=new ExpandTransTable(tab, prefixMultipleFK, allTabs);
      }
 

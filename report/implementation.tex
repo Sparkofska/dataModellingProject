@@ -82,7 +82,7 @@ In case of multiple keys referring one table, foreigh key is taken into account.
 The root table then creates final sql query with \texttt{createFinalSqlScripts()}, which extracts query parts of all tables and put it into final queries.
 Migration is handled by \texttt{createAndMigrateTable(Credentials credentials, String select, String insert, String create)} by running create, select and in sert query creating a new record for all retrieved source data.
 
-\begin{figure}[p]
+\begin{figure}
   \lstinputlisting[breaklines]{images/createReferencedTable.txt}
   \caption{Process intity structure}
   \label{fig:metadataOutput}

@@ -69,7 +69,24 @@ Process of aggregating columns data in transaction tables consists of defining d
 \end{figure}
 
 As a first step the input database is parsed using the JDBC library\footnote{\url{http://www.oracle.com/technetwork/java/javase/jdbc/index.html}}.
+
 JDBC is also used to retrieve information about foreign key constraints: The transaction table suggestions, which are based on the number of referencing tables, are made by using this information.
+
+With list of all tables in source database, \texttt{TransactionSuggestion} creates default suggestion of classification of entities based on number of foreigh keys referencing each table.
+Suggestion is presented to user by \texttt{TransactionSuggestion} class which also handles following user modification of final tables classification.
+
+The main algorithm of collapsing multiple tables to one is implemented in class \texttt{HierarchyTable} and its method \texttt{createReferencedTableList(List<Table> allTabs)}.
+
+Starting from root table, this function is recursive called on all of the referred tables. To every lower level of graph, a table prefix is distributed to keep track of actual table level and its path from root.
+In case of multiple keys referring one table, foreigh key is taken into account. After all refered tables are processed, actual table creates its own parts of SQL query.
+The root table then creates final sql query with \texttt{createFinalSqlScripts()}, which extracts query parts of all tables and put it into final queries.
+Migration is handled by \texttt{createAndMigrateTable(Credentials credentials, String select, String insert, String create)} by running create, select and in sert query creating a new record for all retrieved source data.
+
+\begin{figure}[p]
+  \lstinputlisting[breaklines]{images/createReferencedTable.txt}
+  \caption{Process intity structure}
+  \label{fig:metadataOutput}
+\end{figure}
 
 \begin{figure}[p]
   \lstinputlisting[breaklines]{images/metadataOutput.txt}

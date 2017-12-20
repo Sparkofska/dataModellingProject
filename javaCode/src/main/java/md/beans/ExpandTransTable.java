@@ -3,7 +3,7 @@ package md.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HierarchyTable implements TableSQLCreator{
+public class ExpandTransTable implements TableSQLCreator{
 
     private Table table;
 
@@ -13,9 +13,9 @@ public class HierarchyTable implements TableSQLCreator{
 
     private Boolean isRootTable;
 
-    List<HierarchyTable> referencedTabs;
+    List<ExpandTransTable> referencedTabs;
+    List<Table> consideredTabs;
     List<Table> allTables;
-    List<Table> transTables;
     String tabPrefix;
     String tabPrefixToDistribute;
     String selectTablesPart;
@@ -37,14 +37,6 @@ public class HierarchyTable implements TableSQLCreator{
     @Override
     public String getInsertQuery() {
         return this.insertQuery;
-    }
-
-    public void setTransTables(List<Table> transTables) {
-        this.transTables = transTables;
-    }
-
-    public List<Table> getTransTables() {
-        return transTables;
     }
 
     private void setSelectQuery(String selectQuery){
@@ -81,11 +73,11 @@ public class HierarchyTable implements TableSQLCreator{
         return table;
     }
 
-    public void setReferencedTabs(List<HierarchyTable> referencedTabs) {
+    public void setReferencedTabs(List<ExpandTransTable> referencedTabs) {
         this.referencedTabs = referencedTabs;
     }
 
-    public List<HierarchyTable> getReferencedTabs() {
+    public List<ExpandTransTable> getReferencedTabs() {
         return referencedTabs;
     }
 
@@ -105,8 +97,8 @@ public class HierarchyTable implements TableSQLCreator{
         this.selectTablesPart = selectTablesPart;
     }
 
-    public HierarchyTable (Table tab, List<Table> transTables){
-        this.setTransTables(transTables);
+    public ExpandTransTable (Table tab, List<Table> transTabs){
+        this.consideredTabs=transTabs;
         this.setTable(tab.duplicateTable(tab));
         this.setIsRootTable(true);
         this.setTabPrefix("");
@@ -116,8 +108,8 @@ public class HierarchyTable implements TableSQLCreator{
         this.createFirstTabSqlParts();
     }
 
-    public HierarchyTable (Table tab, List<Table> transTables, String prefix){
-        this.setTransTables(transTables);
+    public ExpandTransTable (Table tab, String prefix, List<Table> transTabs){
+        this.consideredTabs=transTabs;
         this.setTable(tab.duplicateTable(tab));
         this.setIsRootTable(false);
         this.setTabPrefix(prefix);
@@ -130,7 +122,7 @@ public class HierarchyTable implements TableSQLCreator{
     public String aggregateSelectTabs(){
 
         String agg= " " + this.selectTablesPart;
-        for(HierarchyTable t: this.getReferencedTabs()){
+        for(ExpandTransTable t: this.getReferencedTabs()){
             agg+=t.aggregateSelectTabs();
         }
         return agg;
@@ -139,7 +131,7 @@ public class HierarchyTable implements TableSQLCreator{
     public String aggregateInsert(){
 
         String agg= " " + this.insertPart;
-        for(HierarchyTable t: this.getReferencedTabs()){
+        for(ExpandTransTable t: this.getReferencedTabs()){
             agg+=t.aggregateInsert();
         }
         return agg;
@@ -148,7 +140,7 @@ public class HierarchyTable implements TableSQLCreator{
     public String aggregateCreateColumns(){
 
         String agg= " " + this.createColumnsPart;
-        for(HierarchyTable t: this.getReferencedTabs()){
+        for(ExpandTransTable t: this.getReferencedTabs()){
             agg+=t.aggregateCreateColumns();
         }
         return agg;
@@ -157,7 +149,7 @@ public class HierarchyTable implements TableSQLCreator{
     public String aggregateCreatePK(){
 
         String agg= " " + this.createPKPart;
-        for(HierarchyTable t: this.getReferencedTabs()){
+        for(ExpandTransTable t: this.getReferencedTabs()){
             agg+=t.aggregateCreatePK();
         }
         return agg;
@@ -166,7 +158,7 @@ public class HierarchyTable implements TableSQLCreator{
     public String aggregateSelectFrom(){
 
         String agg= " " + this.selectFromPart;
-        for(HierarchyTable t: this.getReferencedTabs()){
+        for(ExpandTransTable t: this.getReferencedTabs()){
             agg+=t.aggregateSelectFrom();
         }
         return agg;
@@ -263,21 +255,29 @@ public class HierarchyTable implements TableSQLCreator{
         String select="";
         Boolean firstCol=true;
         for (Column col: this.table.getCols()){
-            if (!col.isForeignKey()){
-                if (firstCol){
-                    insert+=",";
-                    columns+=",";
+            Boolean fkToFactTable=false;
+            if (col.isForeignKey()) {
+                for (Table t : this.consideredTabs) {
+                    if (col.getForeignKeyTable().equals(t.getName())) {
+                        fkToFactTable = true;
+                    }
                 }
-                firstCol=false;
+            }
+            if (!col.isForeignKey() || !fkToFactTable){
+                if (firstCol) {
+                    insert += ",";
+                    columns += ",";
+                }
+                firstCol = false;
 
-                insert+= col.getName()+ ", ";
-                columns+= "\n\t"+ col.getName() + " " +  col.getType() + ",";
-                select+= this.getTabPrefix() + this.table.getName() + "."+col.getName()+ " " + ",";
+                insert += col.getName() + ", ";
+                columns += "\n\t" + col.getName() + " " + col.getType() + ",";
+                select += this.getTabPrefix() + this.table.getName() + "." + col.getName() + " " + ",";
             }
         }
         this.setSelectFromPart(" FROM " + this.table.getName() + " ");
-        this.setInsertPart("INSERT INTO "+this.table.getName() +"_collapsed ("+ insert);
-        this.setCreateColumnsPart("CREATE TABLE IF NOT EXISTS " + this.table.getName() + "_collapsed" + "(" + columns);
+        this.setInsertPart("INSERT INTO "+this.table.getName() +"_tr ("+ insert);
+        this.setCreateColumnsPart("CREATE TABLE IF NOT EXISTS " + this.table.getName() + "_tr" + "(" + columns);
         this.setSelectTablesPart("SELECT " + select);
         this.createFirstPKParts();
     }
@@ -285,8 +285,21 @@ public class HierarchyTable implements TableSQLCreator{
     private void createFirstPKParts(){
         String pk="";
         for (Column col: this.table.getCols()){
-            if (col.isPrimaryKey() && !col.isForeignKey()){
-                pk+= ", " + col.getName();
+            if (col.isPrimaryKey()){
+                if (col.isForeignKey()){
+                    Boolean fkToFactTable=false;
+                    for (Table t: this.consideredTabs) {
+                        if (col.getForeignKeyTable().equals(t.getName())) {
+                            fkToFactTable = true;
+                        }
+                    }
+                    if (!fkToFactTable){
+                        pk+= ", " + col.getName();
+                    }
+                }
+                else{
+                    pk+= ", " + col.getName();
+                }
             }
         }
         this.createPKPart= pk;
@@ -306,12 +319,25 @@ public class HierarchyTable implements TableSQLCreator{
         String insert="";
         String columns="";
         String select="";
+        Boolean firstCol=true;
         for (Column col: this.table.getCols()){
-            insert+= "," +this.getTabPrefix() + this.table.getName() + "_" + col.getName() + " ";
-            columns+= ",\n\t" +this.getTabPrefix() + this.table.getName() + "_" + col.getName() + " " + col.getType();
-            select+= "," + this.getTabPrefix() + this.table.getName() + "."+col.getName()+" AS "
-                    +this.getTabPrefix() + this.table.getName() + "_" + col.getName() + " ";
+            Boolean fkToFactTable=false;
+            if (col.isForeignKey()) {
+                for (Table t : this.consideredTabs) {
+                    if (col.getForeignKeyTable().equals(t.getName())) {
+                        fkToFactTable = true;
+                    }
+                }
+            }
+            if ((col.isForeignKey() &&  !fkToFactTable) || (col.isPrimaryKey())){
+
+                insert += "," + this.getTabPrefix() + this.table.getName() + "_" + col.getName() + " ";
+                columns += ",\n\t" + this.getTabPrefix() + this.table.getName() + "_" + col.getName() + " " + col.getType();
+                select += "," + this.getTabPrefix() + this.table.getName() + "." + col.getName() + " AS "
+                        + this.getTabPrefix() + this.table.getName() + "_" + col.getName() + " ";
+            }
         }
+
         this.setSelectTablesPart(select);
         this.setInsertPart(insert);
         this.setCreateColumnsPart(columns);
@@ -338,26 +364,20 @@ public class HierarchyTable implements TableSQLCreator{
     }
 
     public void createReferencedTableList(List<Table> allTabs){
-        HierarchyTable ht;
+        ExpandTransTable ht;
+        this.consideredTabs=allTabs;
         for (Column col : this.table.getFKColumns()){
             for (Table tab: allTabs){
                 if (tab.getName().equals(col.getForeignKeyTable())){
-                    Boolean skipTransactionTable=false;
-                    for (Table tranTab: this.getTransTables()) {
-                        if (("TT"+col.getForeignKeyTable()).equals(tranTab.getName()))
-                            skipTransactionTable=true;
-                    }
-                    if (skipTransactionTable)
-                        break;
 
                     String tableToJoin;
                     if (hasMultipleKeysToTheSameTable(col)){
                         tableToJoin=  getTabPrefixToDistribute()+"ON_" +col.getName()+"_"+col.getForeignKeyTable();
-                        ht=new HierarchyTable(tab, this.getTransTables(),  getTabPrefixToDistribute()+"ON_" +col.getName()+"_");
+                        ht=new ExpandTransTable(tab,  getTabPrefixToDistribute()+"ON_" +col.getName()+"_",allTabs);
                     }
                     else{
                         tableToJoin=  getTabPrefixToDistribute() + col.getForeignKeyTable();
-                        ht=new HierarchyTable(tab, this.getTransTables(), this.getTabPrefixToDistribute());
+                        ht=new ExpandTransTable(tab, this.getTabPrefixToDistribute(), allTabs);
                     }
 
                     this.addTableToSelectFromPart(col, tableToJoin);
@@ -374,3 +394,4 @@ public class HierarchyTable implements TableSQLCreator{
     }
 
 }
+

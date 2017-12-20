@@ -29,6 +29,23 @@ public class Table {
 		return listOfCols;
 	}
 
+	public Table duplicateTable(Table tableToDuplicate){
+		Table duplicate= new Table();
+		duplicate.setName(tableToDuplicate.getName());
+
+		List<Column> clonedColumns = new ArrayList<>();
+		for (Column col : tableToDuplicate.getCols()) {
+			try{
+				clonedColumns.add(Column.class.cast(col.clone()));
+			}
+			catch (Exception e) {
+				System.err.println(e.getMessage());
+			}
+		}
+		duplicate.setCols(clonedColumns);
+		return duplicate;
+	}
+
 	public List<Column> getFKColumns(){
 	    List<Column> fkCols= new ArrayList<>();
 		for (Column col: this.cols){

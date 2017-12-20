@@ -76,23 +76,49 @@ public class Hello {
 			List<DimensionalModel> modelSuggestion = Suggestor.makeDimensionalModelSuggestion(tables, transactionsFixed);
 			List<DimensionalModel> modelFixed = cli.letUserConfirm(modelSuggestion);
 
-			List<TableSQLCreator> createTables = cli.letUserChooseAggregation(modelFixed);
-			
 			// 8. convert database
+
+			String  designOption = cli.letUserChooseFinalModel();
+
+			List<TableSQLCreator> createTables = cli.letUserChooseAggregation(modelFixed, designOption);
+
 			presenter.present("Generating dimensional model database...");
 			for (TableSQLCreator transTable : createTables) {
 				createAndMigrateTable(credentials, transTable.getSelectQuery(), transTable.getInsertQuery(),
 						transTable.getCreateQuery());
 			}
-			
-			for(DimensionalModel dimModel:modelFixed){
-				for(Table compTable : dimModel.getComponentTables()) {
-					HierarchyTable hirTable = new HierarchyTable(compTable);
-					hirTable.createReferencedTableList(dimModel.getClassificationTables());
-					hirTable.createSqlScripts();
-					createAndMigrateTable(credentials, hirTable.getSqlSelect(), hirTable.getSqlInsert(), hirTable.getSqlCreate());
+
+
+			List<Table> transTabs= new ArrayList<>();
+			if (!designOption.equals("2")) {
+				for (DimensionalModel dimModel : modelFixed) {
+					transTabs.addAll(dimModel.getTransactionTables());
 				}
 			}
+
+			for(DimensionalModel dimModel:modelFixed){
+				for(Table compTable : dimModel.getComponentTables()) {
+					Boolean skipTransactionTable=false;
+					for (Table tt: transTabs){
+						if (tt.getName().equals(compTable.getName()))
+							skipTransactionTable=true;
+					}
+					if (skipTransactionTable && !designOption.equals("2"))
+						continue;
+					HierarchyTable hirTable = new HierarchyTable(compTable, transTabs);
+					hirTable.createReferencedTableList(dimModel.getClassificationTables());
+					createAndMigrateTable(credentials, hirTable.getSelectQuery(), hirTable.getInsertQuery(),
+							hirTable.getCreateQuery());
+				}
+			}
+
+			for(Table factTable : transTabs) {
+				ExpandTransTable hirTable = new ExpandTransTable(factTable, transTabs);
+				hirTable.createReferencedTableList(transTabs);
+				createAndMigrateTable(credentials, hirTable.getSelectQuery(), hirTable.getInsertQuery(),
+						hirTable.getCreateQuery());
+			}
+
 			presenter.present("Dimensional model successfully generated.");
 
 		} catch (SQLException e) {

@@ -1,6 +1,5 @@
 package md;
 
-import md.beans.CollapsedTable;
 import md.beans.HierarchyTable;
 import md.beans.Table;
 

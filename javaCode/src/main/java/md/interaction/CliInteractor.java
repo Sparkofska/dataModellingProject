@@ -287,7 +287,35 @@ public class CliInteractor {
 		return edit;
 	}
 
-	public List<TableSQLCreator> letUserChooseAggregation(List<DimensionalModel> models) throws IOException {
+	public String letUserChooseFinalModel() throws IOException {
+
+		presenter.present("");
+		presenter.present("Pick option for generated database");
+		presenter.present("1: Build star model from transaction entities");
+		presenter.present("2: Create component entities for each individual transaction entity");
+		String ret="";
+		while (ret.equals("")) {
+			try {
+				String line = input.readLine();
+				switch (line.toLowerCase()) {
+					case "1":
+						ret = "1";
+						break;
+					case "2":
+						ret = "2";
+						break;
+					default:
+						throw new WrongUserInputException("Wrong input: can only be '1' or '2' but was " + line);
+				}
+			} catch (WrongUserInputException e) {
+				presenter.present(e.getMessage());
+			}
+		}
+
+		return ret;
+	}
+
+	public List<TableSQLCreator> letUserChooseAggregation(List<DimensionalModel> models, String opt) throws IOException {
 		List<TableSQLCreator> ret = new ArrayList<>();
 
 		int i = 0;
@@ -308,8 +336,10 @@ public class CliInteractor {
 					break;
 				case "no":
 				case "n":
-					ret.add(new TransTable(transTable));
-					break;
+				    if (opt.equals("2")) {
+						ret.add(new TransTable(transTable));
+						break;
+					}
 				default:
 					throw new WrongUserInputException("Wrong input: can only be 'yes' or 'no' but was " + line);
 				}

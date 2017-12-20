@@ -1,18 +1,20 @@
 package md;
 
-import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import md.CredentialParser.Credentials;
-import md.beans.*;
+import md.beans.DimensionalModel;
+import md.beans.ExpandTransTable;
+import md.beans.HierarchyTable;
+import md.beans.Table;
+import md.beans.TableSQLCreator;
+import md.beans.TransactionSuggestion;
 import md.interaction.CliInteractor;
-import md.interaction.CliInteractor.AggregationDecision;
 import md.interaction.SaveAndLoad;
 import md.interaction.SaveAndLoad.LoadReturnValue;
 
@@ -27,7 +29,10 @@ public class Hello {
 	public static void main(String[] args) {
 		Credentials credentials = new CredentialParser(new File(CREDENTIAL_FILE_PATH)).doMagic();
 		// createExampleDatabase(credentials);
-		pipeline(credentials);
+
+		File loadFile = parseCliArguments(args);
+
+		pipeline(credentials, loadFile);
 	}
 
 	// @formatter:off
@@ -49,36 +54,51 @@ public class Hello {
 	// - collapse hierarchy (Classification tables)
 	// - aggregate
 	// @formatter:on
-	private static void pipeline(Credentials credentials) {
+	private static void pipeline(Credentials credentials, File loadFile) {
 		Presenter presenter = new Presenter(System.out);
 
 		try {
 			// new DatabaseMetadataReader(DB_URL, credentials.username,
 			// credentials.password).doit();
 
-			// 1. read meta data of given database
-			List<Table> tables = new DatabaseMetadataReader(DB_URL, credentials.username, credentials.password)
-					.getMetadata(DB_NAME_MOODY);
-
-			// 2. present meta data to user
-			 presenter.presentMetadata(tables);
-
-			// 3. think of suggestions for conversion
-			TransactionSuggestion transactionSuggestion = Suggestor.makeTransactionSuggestion(tables);
-
-			// 4. present suggestions to user
-			// 5. Let user edit suggestions
-			// 6. [Breakpoint at each step of editing]
-			// 7. Let user confirm
 			CliInteractor cli = new CliInteractor(presenter, System.in);
-			TransactionSuggestion transactionsFixed = cli.letUserConfirm(transactionSuggestion);
+			List<DimensionalModel> modelFixed;
+			if (loadFile != null) {
+				LoadReturnValue load = SaveAndLoad.load(loadFile);
+				if (load.getStatus().equals(SaveAndLoad.TRANSACTION_SELECTION)) {
+					List<Table> tables = new DatabaseMetadataReader(DB_URL, credentials.username, credentials.password)
+							.getMetadata(DB_NAME_MOODY);
 
-			List<DimensionalModel> modelSuggestion = Suggestor.makeDimensionalModelSuggestion(tables, transactionsFixed);
-			List<DimensionalModel> modelFixed = cli.letUserConfirm(modelSuggestion);
+					TransactionSuggestion transactionSuggestion = load.getTransactionSuggestion();
 
-			// 8. convert database
+					TransactionSuggestion transactionsFixed = cli.letUserConfirm(transactionSuggestion);
 
-			String  designOption = cli.letUserChooseFinalModel();
+					List<DimensionalModel> modelSuggestion = Suggestor.makeDimensionalModelSuggestion(tables,
+							transactionsFixed);
+					modelFixed = cli.letUserConfirm(modelSuggestion);
+				} else if (load.getStatus().equals(SaveAndLoad.COMPONENT_CLASSIFICATION)) {
+					List<DimensionalModel> modelSuggestion = load.getModel();
+					modelFixed = cli.letUserConfirm(modelSuggestion);
+				} else {
+					throw new UnsupportedOperationException(
+							"Hey programmer, you forgot to catch a case: " + load.getStatus());
+				}
+			} else {
+				List<Table> tables = new DatabaseMetadataReader(DB_URL, credentials.username, credentials.password)
+						.getMetadata(DB_NAME_MOODY);
+
+				presenter.presentMetadata(tables);
+
+				TransactionSuggestion transactionSuggestion = Suggestor.makeTransactionSuggestion(tables);
+
+				TransactionSuggestion transactionsFixed = cli.letUserConfirm(transactionSuggestion);
+
+				List<DimensionalModel> modelSuggestion = Suggestor.makeDimensionalModelSuggestion(tables,
+						transactionsFixed);
+				modelFixed = cli.letUserConfirm(modelSuggestion);
+			}
+
+			String designOption = cli.letUserChooseFinalModel();
 
 			List<TableSQLCreator> createTables = cli.letUserChooseAggregation(modelFixed, designOption);
 
@@ -88,20 +108,19 @@ public class Hello {
 						transTable.getCreateQuery());
 			}
 
-
-			List<Table> transTabs= new ArrayList<>();
+			List<Table> transTabs = new ArrayList<>();
 			if (!designOption.equals("2")) {
 				for (DimensionalModel dimModel : modelFixed) {
 					transTabs.addAll(dimModel.getTransactionTables());
 				}
 			}
 
-			for(DimensionalModel dimModel:modelFixed){
-				for(Table compTable : dimModel.getComponentTables()) {
-					Boolean skipTransactionTable=false;
-					for (Table tt: transTabs){
+			for (DimensionalModel dimModel : modelFixed) {
+				for (Table compTable : dimModel.getComponentTables()) {
+					Boolean skipTransactionTable = false;
+					for (Table tt : transTabs) {
 						if (tt.getName().equals(compTable.getName()))
-							skipTransactionTable=true;
+							skipTransactionTable = true;
 					}
 					if (skipTransactionTable && !designOption.equals("2"))
 						continue;
@@ -112,7 +131,7 @@ public class Hello {
 				}
 			}
 
-			for(Table factTable : transTabs) {
+			for (Table factTable : transTabs) {
 				ExpandTransTable hirTable = new ExpandTransTable(factTable, transTabs);
 				hirTable.createReferencedTableList(transTabs);
 				createAndMigrateTable(credentials, hirTable.getSelectQuery(), hirTable.getInsertQuery(),
@@ -157,5 +176,25 @@ public class Hello {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static File parseCliArguments(String[] args) {
+		int i = 0;
+		for (String arg : args) {
+			i++;
+			switch (arg) {
+			case "-load":
+				if (i >= args.length)
+					throw new RuntimeException("Wrong call. Use it like: project.jar -load <filename>");
+				File file = new File(args[i]);
+				if (!file.exists())
+					throw new RuntimeException("Wrong call. File " + args[i] + " does not exist.");
+				return file;
+
+			default:
+				System.out.println("No option specified for " + arg);
+			}
+		}
+		return null;
 	}
 }

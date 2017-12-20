@@ -1,6 +1,6 @@
 package md.interaction;
 
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,8 +20,8 @@ import md.beans.TransactionSuggestion;
 
 public class SaveAndLoad {
 
-	private static final String TRANSACTION_SELECTION = "TRANSACTION_SELECTION";
-	private static final String COMPONENT_CLASSIFICATION = "COMPONENT_CLASSIFICATION";
+	public static final String TRANSACTION_SELECTION = "TRANSACTION_SELECTION";
+	public static final String COMPONENT_CLASSIFICATION = "COMPONENT_CLASSIFICATION";
 
 	public static void save(String filename, TransactionSuggestion model) throws IOException {
 
@@ -116,8 +116,8 @@ public class SaveAndLoad {
 		Table table = new Table();
 
 		table.setName((String) jsonTable.get("name"));
-		table.setnExportedKeys((int) (long)jsonTable.get("nExportedKeys"));
-		table.setnImportedKeys((int) (long)jsonTable.get("nImportedKeys"));
+		table.setnExportedKeys((int) (long) jsonTable.get("nExportedKeys"));
+		table.setnImportedKeys((int) (long) jsonTable.get("nImportedKeys"));
 
 		List<Column> cols = new ArrayList<>();
 		for (Object obj : (JSONArray) jsonTable.get("cols")) {
@@ -179,10 +179,14 @@ public class SaveAndLoad {
 	}
 
 	public static LoadReturnValue load(String filename) throws IOException {
+		return load(new File(filename));
+	}
+
+	public static LoadReturnValue load(File loadFile) throws IOException {
 
 		JSONParser parser = new JSONParser();
 		try {
-			JSONObject json = (JSONObject) parser.parse(new FileReader(filename));
+			JSONObject json = (JSONObject) parser.parse(new FileReader(loadFile));
 
 			String status = (String) json.get("status");
 			switch (status) {
@@ -192,7 +196,7 @@ public class SaveAndLoad {
 				return new LoadReturnValue(fromJSONDimensionalModels((JSONArray) json.get("model")));
 
 			default:
-				throw new IllegalStateException("Given file " + filename + " has unknown status: " + status);
+				throw new IllegalStateException("Given file " + loadFile.getAbsolutePath() + " has unknown status: " + status);
 			}
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block

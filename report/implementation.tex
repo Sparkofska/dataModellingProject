@@ -8,21 +8,45 @@ As soon as all the specifications about the resulting scheme are made, the progr
 \paragraph{Making suggestions}
 
 The program tries to support the user in a helpful way.
-After the input database scheme is read, the system will come up with some suggestions for the categorization of tables (according to \ref{par:classifyEntities}).
+After the input database scheme is read, the system will come up with some suggestions for the categorization of tables (according to \ref{par:classifyEntities}) into \emph{transaction}, \emph{component} and \emph{classification}.
 
-Since it is a hard job to find transaction candidates without knowing about the business from only the database schema, we decided to use a different approach.
+Since it is a hard job to find transaction candidates from only the database schema without knowing about the business, we decided to use a different approach.
 It is likely that the user will choose a minimal entity as transaction because it is one of the roots of the database and therefore a very important table for the business.
 In order to obtain every minimal entity we find every table that is not referenced by any foreign key.
+As we consider the database scheme as a directed graph (tables are nodes and foreign keys are directed edges) we can speak about the transaction tables as roots of a spanning tree.
+The direct neighbours of the roots are suggested to be classified as components.
+Every other table that is part of the spanning tree, \ie reachable by foreign keys from the root, is suggested to be a classification table.
 
+For sure, if the user not satisfied with this suggestion he can alter the classification at the given time to fulfill his needs.
 
 \paragraph{User interaction}
 
-- generation can not be done completely automatically
-- users needs and desires are unpredictable and the according structure of dimensional as well
-- therefore we need user interaction and the supervision and confirmation of the user
-- every time a suggestion is made by the program, it will be presented to the user, letting him modify this shit and confirm when he thinks the right design is chosen.
+The generation of a dimensional model cannot be done completely automatically.
+The user's needs and desires are unpredictable and the according structure of dimensional model as well.
+Therefore we need user interaction letting him input his needs as well as supervision and confirmation throughout the process.
+In order to accomplish that, we implemented a commandline interface which guides the user step by step helping him to give the commands in the right order.
+Every time a suggestion is made, it is presented to the user, letting him modify for his special needs and confirm when he thinks the right design is chosen.
+Since we aware that mistakes can happen, the program offers an undo-option at certain points in the process.
 
-SaveAndLoad
+At very first, the input database scheme is parsed and displayed to the user to give a overview of what to do. Figure~\ref{fig:metadataOutput} shows a short version of this output.
+After the database scheme is parsed, a suggestion of transaction tables is made.
+See in figure~\ref{fig:transactionSuggestion} how the suggestion is presented to the user.
+The transaction entities form the core of the dimensional model because they will result into fact tables.
+That is why the user must select the transaction entities prior to any other step.
+
+When the transaction entities are selected the system can proceed to suggest component and classification entities.
+Figure~\ref{fig:dimensionalModelSuggestion} shows the interface of this step. Here the user can also classify some table as \emph{unclassified} which basically means, that the table's columns and data will not occur in the resulting dimensional scheme.
+
+The information collected by now is sufficient to create a dimensional scheme.
+Moody \andothers propose in \cite{moody2000enterprise} a second optional step, the \emph{aggregation}.
+Hence the user is given the ability now to choose columns from every transaction table to be aggregated.
+Doing this he also needs to specify an aggregation function.
+
+Are all this steps completed, the program will generate the necessary SQL scripts and run them automatically.
+
+However, we know that using the program is hard work including many steps, so the user may want to have a coffee when the work is halfway done.
+Being aware of this the program comes with a handy feature to save the current working state at any time.
+The work done so far can be saved as a JSON-file and loaded into the program again to continue working from that point.
 
 \paragraph{Generating SQL}
 TODO Dusan %TODO
@@ -37,6 +61,7 @@ TODO Dusan %TODO
 \end{figure}
 
 As a first step the input database is parsed using the JDBC library\footnote{\url{http://www.oracle.com/technetwork/java/javase/jdbc/index.html}}.
+JDBC is also used to retrieve information about foreign key constraints: The transaction table suggestions, which are based on the number of referencing tables, are made by using this information.
 
 \begin{figure}[p]
   \lstinputlisting[breaklines]{images/metadataOutput.txt}
@@ -49,7 +74,7 @@ As a first step the input database is parsed using the JDBC library\footnote{\ur
 \begin{figure}[p]
   \lstinputlisting[breaklines]{images/transactionSuggestion.txt}
   \caption{Commandline interface: Suggestion and Selection of \emph{Transaction entities}}
-  \label{fig:transactoinSuggestion}
+  \label{fig:transactionSuggestion}
 \end{figure}
 
 \begin{figure}[p]

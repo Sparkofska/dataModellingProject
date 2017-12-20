@@ -1,0 +1,30 @@
+void createReferencedTableList(List<Table> allTabs){
+  ExpandTransTable ht;
+  this.consideredTabs=allTabs;
+  for (Column col : this.table.getFKColumns()){
+   for (Table tab: allTabs){
+    if (tab.getName().equals(col.getFKeyTable())){
+
+     String tableToJoin;
+     if (hasMultipleKeysToTheSameTable(col)){
+
+      tableToJoin= createTableToJoinStr(distrPrefix,col.getFKeyTable());
+      ht=new ExpandTransTable(tab, prefix, allTabs);
+     }
+     else{
+      tableToJoin= createTableToJoinStr(distrPrefix,col.getFKeyTable());
+      ht=new ExpandTransTable(tab, prefixMultipleFK, allTabs);
+     }
+
+     this.addTableToSelectFromPart(col, tableToJoin);
+     ht.createReferencedTableList(allTabs);
+     this.referencedTabs.add(ht);
+    }
+   }
+  }
+  if (!this.getIsRootTable()){
+   this.createChildSqlParts();
+  }
+  else
+   this.createFinalSqlScripts();
+ }

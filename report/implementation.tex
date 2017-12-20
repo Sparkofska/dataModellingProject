@@ -49,7 +49,15 @@ Being aware of this the program comes with a handy feature to save the current w
 The work done so far can be saved as a JSON-file and loaded into the program again to continue working from that point.
 
 \paragraph{Generating SQL}
-TODO Dusan %TODO
+
+The generating process starts by forming a graph-like structure of entities.
+Independent structures are created for each of the transaction and component entities, which are set as the roots.
+Using depth first search approach, all of the referenced entities from root are processed.
+Processing of entities consists of creating parts of the final SQL query.
+Depending of entity type and its position in graph, different SQL query parts are created.
+By aggregating data from all structures, final SQL queries for creating new table and migrating data are made.
+\par
+Process of aggregating columns data in transaction tables consists of defining data types of aggregated columns, setting columns names and generating migrating SQL scripts.  
 
 \subsection{Implementation Details}
 
@@ -70,6 +78,11 @@ JDBC is also used to retrieve information about foreign key constraints: The tra
 \end{figure}
 
 \subsection{Usage of the Tool}
+
+Usage consists of three steps.
+First step lists first suggestion of tables classification and allows to change transaction entities.
+Seconds step allows to filter component and classification tables, which will be migrated.
+Finally, a form of star schema is specified, either one connected star schema, or own star for each transaction entity.
 
 \begin{figure}[p]
   \lstinputlisting[breaklines]{images/transactionSuggestion.txt}
